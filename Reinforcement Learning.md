@@ -450,7 +450,7 @@ g = \mathbb E \left[\sum_{t=0}^{T}\psi_t\nabla_\theta \log \pi_\theta(a_t|s_t)\r
 $$
 其中，$\psi_t$可以有很多种形式：
 
-<img src="./image/psi函数的形式.png" alt="img" style="zoom:50%;" />
+<img src="./image/psi.png" alt="img" style="zoom:50%;" />
 
 我们将Actor-Critic分为两个部分：Actor（策略网络）和Critic（价值网络）
 
@@ -556,7 +556,7 @@ $$
 $$
 令$d_k = D^{\nu^{\pi_{\theta_k}}}_{KL}(\pi_{\theta_k},\pi_{\theta})$，$\beta$的更新规则如下：
 
-<img src="./image/beta的更新规则.png" alt="beta的更新规则" style="zoom:50%;" />
+<img src="./image/beta.png" alt="beta的更新规则" style="zoom:50%;" />
 
 其中，$\delta$为超参数。
 
