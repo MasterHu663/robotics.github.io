@@ -2,19 +2,12 @@ main:
   - title: "Home Page"
     url: /
   - title: "Robot Learning"
-    url: /robot-learning/     # 指向根目录的那个 robot-learning.md
+    url: /robot-learning/ 
 
 robot_learning_nav:
   - title: "Robotics"
-    children:
-      - title: "运动学 & 动力学"
-        url: /robot-learning/robotics/01-kinematics/
-      - title: "控制理论"
-        url: /robot-learning/robotics/02-control/
 
-  - title: "Machine Learning"
+  - title: " Machine Learning"
     children:
-      - title: "深度学习 (DL)"
-        url: /robot-learning/machine_learning/dl/01-cnn/
-      - title: "强化学习 (RL)"
-        url: /robot-learning/machine_learning/rl/01-ppo/
+      - title: "Deep Learning"
+        url: ml/dl/

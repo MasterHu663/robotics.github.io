@@ -1,4 +1,9 @@
-# Deep Learning
+---
+title: "Deep Learning"
+permalink: /ml/dl/
+toc: true
+mathjax: true
+---
 
 ## 1. 线性神经网络
 
