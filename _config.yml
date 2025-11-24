@@ -1,0 +1,30 @@
+remote_theme: mmistakes/minimal-mistakes
+minimal_mistakes_skin: "default" # 或 "air", "sunrise" 等
+
+plugins:
+  - jekyll-include-cache
+
+title: MASTERHU
+email: your-real-email@example.com
+description: ''
+url: "https://masterhu663.github.io"
+baseurl: "/robotics.github.io"
+
+collections:
+  robotic-learning:
+    output: true
+    permalink: /robot-learning/:path/
+
+defaults:
+  - scope:
+      path: ""
+      type: "robot-learning"
+    values:
+      layout: single
+      author_profile: true
+      sidebar:
+        nav: "robot_learning_nav"
+      toc: true
+      toc_sticky: true
+
+      
