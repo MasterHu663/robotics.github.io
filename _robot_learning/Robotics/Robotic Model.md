@@ -1,4 +1,9 @@
-# 机器人学
+---
+title: "Robotic Model"
+permalink: /robotics/rm/
+toc: true
+mathjax: true
+---
 
 ## 1. 机器人运动学
 
@@ -19,7 +24,8 @@
 
 #### 1.1.2 姿态
 
-绕$\bold X$轴旋转角$\gamma$，旋转矩阵为：
+绕$\mathbf X$轴旋转角$\gamma$，旋转矩阵为：
+
 $$
 R_\gamma=\left[
  \begin{matrix}
@@ -29,7 +35,9 @@ R_\gamma=\left[
   \end{matrix}
   \right]
 $$
-绕$\bold Y$轴旋转角$\beta$，旋转矩阵为：
+
+绕$\mathbf Y$轴旋转角$\beta$，旋转矩阵为：
+
 $$
 R_\beta=\left[
  \begin{matrix}
@@ -39,7 +47,9 @@ R_\beta=\left[
   \end{matrix}
   \right]
 $$
-绕$\bold Z$轴旋转角$\alpha$，旋转矩阵为：
+
+绕$\mathbf Z$轴旋转角$\alpha$，旋转矩阵为：
+
 $$
 R_\alpha=\left[
  \begin{matrix}
@@ -49,7 +59,9 @@ R_\alpha=\left[
   \end{matrix}
   \right]
 $$
+
 一个坐标系$\{B\}$相对于另一个坐标系$\{A\}$，用旋转矩阵表达：
+
 $$
 ^A_BR=[\hat X,\hat Y,\hat Z]=\left[
  \begin{matrix}
@@ -59,7 +71,9 @@ $$
   \end{matrix}
   \right]
 $$
+
 9个变量，需要6个约束方程，才能获得3个方向的自由度
+
 $$
 |\hat X|=1 \\
 |\hat Y|=1 \\
@@ -68,19 +82,21 @@ $$
 \hat X \cdot \hat Z=0 \\
 \hat Y \cdot \hat Z=0 \\
 $$
+
 但是这样的描述过于复杂，我们可以用三个参数来简便的表示出姿态（旋转一般不满足交换律给姿态的描述带来了困难）:
 
 ##### **a. 固定角**
 
-**$\bold{X-Y-Z}$ 固定角（RPY角）**
+**$\mathbf{X-Y-Z}$ 固定角（RPY角）**
 
-| Name           | 中文名           | 表达式            | 所绕轴      |
-| -------------- | ---------------- | ----------------- | ----------- |
-| $\bold{Roll}$  | 回转角（横滚角） | $\gamma$、$\phi$  | 绕$X$轴旋转 |
-| $\bold{Pitch}$ | 俯仰角           | $\beta$、$\theta$ | 绕$Y$轴旋转 |
-| $\bold{Yaw}$   | 偏转角（航向角） | $\alpha$、$\psi$  | 绕$Z$轴旋转 |
+| Name             | 中文名           | 表达式            | 所绕轴      |
+| ---------------- | ---------------- | ----------------- | ----------- |
+| $\mathbf{Roll}$  | 回转角（横滚角） | $\gamma$、$\phi$  | 绕$X$轴旋转 |
+| $\mathbf{Pitch}$ | 俯仰角           | $\beta$、$\theta$ | 绕$Y$轴旋转 |
+| $\mathbf{Yaw}$   | 偏转角（航向角） | $\alpha$、$\psi$  | 绕$Z$轴旋转 |
 
-先绕$\bold{X_A}$轴旋转，再绕$\bold{Y_A}$轴旋转，最后$\bold{Z_A}$轴旋转
+先绕$\mathbf{X_A}$轴旋转，再绕$\mathbf{Y_A}$轴旋转，最后$\mathbf{Z_A}$轴旋转
+
 $$
 ^A_BR=R_Z(\alpha)R_Y(\beta)R_X(\gamma)\\
 =
@@ -117,9 +133,10 @@ $$
 
 ##### **b. 欧拉角**
 
-**1. $\bold{Z-Y-X}$ 欧拉角**
+**1. $\mathbf{Z-Y-X}$ 欧拉角**
 
-先绕$\bold{X_B}$轴旋转，再绕$\bold{Y_B}$轴旋转，最后$\bold{Z_B}$轴旋转
+先绕$\mathbf{X_B}$轴旋转，再绕$\mathbf{Y_B}$轴旋转，最后$\mathbf{Z_B}$轴旋转
+
 $$
 ^A_BR=R_Z(\alpha)R_Y(\beta)R_X(\gamma)\\
 = \left[
@@ -133,9 +150,10 @@ $$
 
 > 三次绕固定轴旋转的最终姿态和以相反顺序绕运动坐标轴转动的最终姿态相同！
 
-**2. $\bold{Z-Y-Z}$ 欧拉角**
+**2. $\mathbf{Z-Y-Z}$ 欧拉角**
 
-先绕$\bold{Z_B}$轴旋转，再绕$\bold{Y_B}$轴旋转，最后$\bold{Z_B}$轴旋转
+先绕$\mathbf{Z_B}$轴旋转，再绕$\mathbf{Y_B}$轴旋转，最后$\mathbf{Z_B}$轴旋转
+
 $$
 ^A_BR=R_Z(\alpha)R_Y(\beta)R_Z(\gamma)\\
 = \left[
@@ -175,13 +193,16 @@ $$
 **解决连杆之间的运动学关系**：Denavit-Hartenberg方法（DH法）
 
 表示方法：
+
 $$
 a_{i-1} = 沿 \hat X_{i-1} 轴，从\hat Z_{i-1}移动到\hat Z_{i}的距离 \ (连杆长度)\\
 \alpha_{i-1} = 沿 \hat X_{i-1} 轴，从\hat Z_{i-1}移动到\hat Z_{i}的角度\ (连杆转角) \\
 d_i = 沿 \hat Z_i 轴，从\hat X_{i-1}移动到\hat X_{i}的距离\ (连杆偏距) \\
 \theta_i = 沿 \hat Z_i 轴，从\hat X_{i-1}移动到\hat X_{i}的距离\ (关节角) \\
 $$
+
 可以推得：
+
 $$
 ^{i-1}_{i}T=R_X(\alpha_{i-1})D_X(a_{i-1})R_Z(\theta_{i})D_Z(d_{i}) \\
 =\left[
@@ -197,6 +218,7 @@ $$
 ### 1.4 刚体姿态运动学
 
 角速度（绕随体坐标系的角速度）和欧拉角速度（由于RPY角和ZYX角实质上是等价旋转，这里直接用欧拉角来表述回转、俯仰、偏转角）之间的变换：
+
 $$
 \left[
  \begin{matrix}
@@ -247,57 +269,73 @@ $$
 
 ### 2.1 欧拉第一定律
 
-刚体的线动量$\bold P$的变化率等于所有外力的合数$\bold F_{ext}$作用于刚体
+刚体的线动量$\mathbf P$的变化率等于所有外力的合数$\mathbf F_{ext}$作用于刚体
+
 $$
-\bold F_{ext} = \frac{d\bold p}{dt}
+\mathbf F_{ext} = \frac{d\mathbf p}{dt}
 $$
+
 其中刚体的线性动量是刚体质量与其质心速度的乘积
+
 $$
-\bold p = m\bold v_c
+\mathbf p = m\mathbf v_c
 $$
 
 ### 2.2 欧拉第二定律
 
 设定某惯性参考系的固定点O（例如，原点）为参考点，施加于刚体的净外力矩，等于角动量的时间变化率：
+
 $$
-\bold M_O^{(ext)}=\frac{d \bold L_O}{dt}
+\mathbf M_O^{(ext)}=\frac{d \mathbf L_O}{dt}
 $$
-其中，$\bold M_O^{(ext)}$是对于点O合外力矩，$\bold L_O$是对于点O的角动量（$\bold L=\bold r\times \bold p$）。
+其中，$\mathbf M_O^{(ext)}$是对于点O合外力矩，$\mathbf L_O$是对于点O的角动量（$\mathbf L=\mathbf r\times \mathbf p$）。
 
 假设施加于系统的合外力矩为零，则系统的角动量的时间变化率为零，系统的角动量守恒。
 
 **相对于质心的欧拉第二运动定律**
 
 无论质心参考系是否为惯性参考系（即不论质心是否呈加速度运动），以质心为参考点，合外力矩等于角动量的时间变化率：
+
 $$
-\bold M_{cm}=\frac{d \bold L_{cm}}{dt}
+\mathbf M_{cm}=\frac{d \mathbf L_{cm}}{dt}
 $$
 
 ### 2.3 欧拉方程（刚体运动）
 
 我们可以选取相对于惯量的主轴坐标为体坐标轴系，这使得计算得以简化，因为我们现在可以将角动量的变化分别描述$L$的大小变化和方向变化的部分，并进一步将惯量对角化，方程为：
+
 $$
-\bold M = (I\frac{d\bold\omega}{dt})+(\bold\omega)\times I\bold\omega
+\mathbf M = (I\frac{d\mathbf\omega}{dt})+(\mathbf\omega)\times I\mathbf\omega
 $$
+
 证明如下：在惯性系中，
+
 $$
-\bold M_{in}=\frac{d\bold L_{in}}{dt}
+\mathbf M_{in}=\frac{d\mathbf L_{in}}{dt}
 $$
+
 引入一条重要的结论：**对任意矢量A在惯性系S中求导，等于其在转动系S′中求导，加上转动系相对惯性系的角速度ω叉乘这一矢量A**，所以
+
 $$
-\bold M = (\frac{d\bold L}{dt})_{relative}+\bold \omega \times\bold L
+\mathbf M = (\frac{d\mathbf L}{dt})_{relative}+\mathbf \omega \times\mathbf L
 $$
-由于在转动系（质心坐标系/体坐标系）中，$\bold I$不随时间改变，代入$\bold L=\bold I \bold \omega$得：
+
+由于在转动系（质心坐标系/体坐标系）中，$\mathbf I$不随时间改变，代入$\mathbf L=\mathbf I \mathbf \omega$得：
+
 $$
-(\frac{d\bold L}{dt})_{relative}=\bold I\frac{d\bold\omega}{dt}+\bold \omega\frac{d\bold I}{dt}=\bold I\frac{d\bold \omega}{dt}
+(\frac{d\mathbf L}{dt})_{relative}=\mathbf I\frac{d\mathbf\omega}{dt}+\mathbf \omega\frac{d\mathbf I}{dt}=\mathbf I\frac{d\mathbf \omega}{dt}
 $$
+
 继而：
+
 $$
-\bold M=\bold I \cdot \bold{\dot \omega} + \bold \omega \times (\bold I\bold \cdot \omega)
+\mathbf M=\mathbf I \cdot \mathbf{\dot \omega} + \mathbf \omega \times (\mathbf I\mathbf \cdot \omega)
 $$
+
 在体坐标系中，我们通常选取主轴（惯性主轴），使得惯性张量为对角形式：
+
 $$
-\bold I =    \left[
+\mathbf I =    \left[
  \begin{matrix}
    I_1 & 0 & 0 \\
    0 & I_2 & 0 \\
@@ -305,9 +343,11 @@ $$
   \end{matrix}
   \right] \tag{3}
 $$
+
 角速度在体坐标系中的表示为：
+
 $$
-\bold \omega =    \left[
+\mathbf \omega =    \left[
  \begin{matrix}
    \omega_1 \\
    \omega_2   \\
@@ -315,7 +355,9 @@ $$
   \end{matrix}
   \right] \tag{3}
 $$
+
 代入可得欧拉方程的分量形式：
+
 $$
 M_1=I_1\dot\omega_1+(I_3-I_2)\omega_2\omega_3 \\
 M_2=I_2\dot\omega_2+(I_1-I_3)\omega_3\omega_1 \\

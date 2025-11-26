@@ -1,3 +1,10 @@
+---
+title: "Path Planner"
+permalink: /robotics/pp/
+toc: true
+mathjax: true
+---
+
 # Simultaneous Localization and Mapping
 
 ## Active SLAM

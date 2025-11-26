@@ -1,10 +1,7 @@
-markdown: kramdown
-kramdown:
-  input: GFM
-  math_engine: mathjax
+mathjax: true
 
 remote_theme: mmistakes/minimal-mistakes
-minimal_mistakes_skin: "default" # 或 "air", "sunrise" 等
+minimal_mistakes_skin: "contrast" # 或 "air", "sunrise" 等
 
 plugins:
   - jekyll-include-cache

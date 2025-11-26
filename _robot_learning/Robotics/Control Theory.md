@@ -1,4 +1,9 @@
-# Control Theory
+---
+title: "Control Theory"
+permalink: /robotics/ct/
+toc: true
+mathjax: true
+---
 
 ## 1. PID Controller
 
@@ -11,9 +16,11 @@ A typical problem of **P** Controller: ***steady state error***. We can understa
 The **I** Controller is a nice solution of the steady state error. There are other problems however, where it might not be enough to look into the past with the integral term. We also need to look into the future. 
 
 When you set the parameters $K_p,K_i,K_d$ in a control system, the **D** Controller seems not helpful. But actually the derivative term of the PID controller is very important. The overshoot due to inertia can be tackled by the derivative term, which is
+
 $$
 u(t) = K_d \frac{de}{dt} = K_d \frac{d}{dt}(p_d-p(t))=K_d(0- \frac{dp}{dt})=-K_d\frac{dp}{dt}
 $$
+
 If the velocity $dp/dt$ is positive (upwards), the control $u$, which is the acceleration $a$, will be negative (downwards). Hence the derivative term acts against the problem of overshoot and oscillation.
 
 

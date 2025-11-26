@@ -1,0 +1,30 @@
+---
+ # Only the main Sass file needs front matter (the dashes are important)
+---
+
+@charset "utf-8";
+@import "minimal-mistakes/skins/contrast";
+
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700&display=swap');
+
+$global-font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+$header-font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+$monospace: "Fira Code", "Consolas", monospace;
+
+/*  字号 (Font Size) */
+$doc-font-size: 12px; 
+
+/*  行高 (Line Height) */
+$doc-line-height: 1.8;
+
+/*  标题的粗细 (Font Weight)  */
+$header-font-weight: 700; 
+
+/*  侧边栏字体大小 */
+$type-size-6: 16px;
+
+/*  侧边栏宽度 */
+$right-sidebar-width: 300px;
+
+@import "minimal-mistakes";

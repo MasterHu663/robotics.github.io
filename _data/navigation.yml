@@ -6,8 +6,21 @@ main:
 
 robot_learning_nav:
   - title: "Robotics"
+    children:
+      - title: "Path Planner"
+        url: robotics/pp/
+      - title: "Control Theory"
+        url: robotics/ct/
+      - title: "Robotic Model"
+        url: robotics/rm/
 
   - title: " Machine Learning"
     children:
       - title: "Deep Learning"
         url: ml/dl/
+      - title: "Reinforcement Learning"
+        url: ml/rl/
+
+
+
+    
