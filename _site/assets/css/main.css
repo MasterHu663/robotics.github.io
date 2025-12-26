@@ -34,7 +34,7 @@ main { padding: 80px 0; min-height: 60vh; }
 
 .robot-widget { position: absolute; top: -20px; /* Floating slightly above the first line */ right: -80px; /* Aligned to the right margin of the container */ width: 300px; /* Desktop size */ height: 300px; cursor: pointer; z-index: 100; }
 
-#Left_x5F_Arm { transform-origin: 110px 216px; transition: transform 0.3s ease-out; }
+#Left_x5F_Arm { transform-origin: 109px 213px; transition: transform 0.3s ease-out; }
 
 @keyframes wave-animation { 0% { transform: rotate(0deg); }
   30% { transform: rotate(16deg); }
