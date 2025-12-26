@@ -1,32 +1,22 @@
-mathjax: true
-
-remote_theme: mmistakes/minimal-mistakes
-minimal_mistakes_skin: "contrast" # 或 "air", "sunrise" 等
-
-plugins:
-  - jekyll-include-cache
-
 title: MASTERHU
-email: your-real-email@example.com
-description: ''
+email: masterhu663@gmail.com
 url: "https://masterhu663.github.io"
 baseurl: "/robotics.github.io"
 
-collections:
-  robot_learning:
-    output: true
-    permalink: /robot-learning/:path/
+# Robotic Engineer Style Guide
+brand_color: "#00E676" # A vibrant neon green for accents
+background_dark: "#1A1A2E" # Dark, deep background
+background_light: "#E0E0E0" # Light mode background for contrast
+text_light: "#F0F0F0" # Light text on dark background
+text_dark: "#333344" # Dark text on light background
+font_primary: "'Roboto Mono', monospace" # Monospace font for code/tech feel
+font_secondary: "'Inter', sans-serif" # Modern sans-serif for general text
 
-defaults:
-  - scope:
-      path: ""
-      type: "robot_learning"
-    values:
-      layout: single
-      author_profile: true
-      sidebar:
-        nav: "robot_learning_nav"
-      toc: true
-      toc_sticky: true
-
-      
+# Navigation links
+navigation:
+  - title: // HOME
+    url: /
+  - title: // PROJECTS
+    url: /projects/
+  - title: // CONTACT
+    url: /contact/

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site.title }}</title>
+    
+    <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="site-header">
+        <nav class="nav-container">
+            <a href="{{ '/' | relative_url }}" class="nav-logo">
+                {{ site.title }}<span class="highlight"> .</span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="/">HOME</a></li>
+                <li><a href="/projects">PROJECTS</a></li>
+                <li><a href="/contact">CONTACT</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            {{ content }}
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; {{ "now" | date: "%Y" }} {{ site.title }}. Built by a Robotic Engineer.</p>
+    </footer>
+
+    <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
+
+    <script src="{{ '/assets/js/robot.js' | relative_url }}"></script>
+
+</body>
+</html>

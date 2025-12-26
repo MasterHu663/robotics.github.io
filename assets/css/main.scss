@@ -1,30 +1,131 @@
 ---
- # Only the main Sass file needs front matter (the dashes are important)
 ---
+/* MASTERHU Portfolio Stylesheet */
 
-@charset "utf-8";
-@import "minimal-mistakes/skins/contrast";
+:root {
+  --bg-color: #ffffff;      /* Pure white background */
+  --text-color: #1a1a1a;    /* High contrast dark grey */
+  --accent-color: #2563eb;  /* Professional engineering blue */
+  --border-color: #f0f0f0;  /* Subtle line color */
+}
 
+/* Reset default browser styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700&display=swap');
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+}
 
-$global-font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
-$header-font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
-$monospace: "Fira Code", "Consolas", monospace;
+/* Centralized layout container */
+.container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
 
-/*  字号 (Font Size) */
-$doc-font-size: 12px; 
+/* Header layout using Flexbox */
+.site-header {
+  padding: 15px 0;
+  border-bottom: 1px solid var(--border-color);
 
-/*  行高 (Line Height) */
-$doc-line-height: 1.8;
+  .nav-container {
+    display: flex;
+    justify-content: space-between; /* Logo on left, links on right */
+    align-items: center;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+}
 
-/*  标题的粗细 (Font Weight)  */
-$header-font-weight: 700; 
+/* Bold Branding Style for MASTERHU */
+.nav-logo {
+  font-size: 2.2rem;       /* Scaled up size */
+  font-weight: 800;       /* Extra bold weight */
+  text-decoration: none;
+  color: var(--text-color);
+  letter-spacing: -1.5px;  /* Tight letter spacing for impact */
 
-/*  侧边栏字体大小 */
-$type-size-6: 16px;
+  /* Highlight class for the decorative dot */
+  .highlight {
+    color: var(--accent-color);
+  }
+}
 
-/*  侧边栏宽度 */
-$right-sidebar-width: 300px;
+/* Navigation link group */
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 30px;
 
-@import "minimal-mistakes";
+  a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 1.4rem;
+    transition: color 0.8s ease;
+    
+    &:hover {
+      color: var(--accent-color);
+    }
+  }
+}
+
+/* Main content spacing */
+main {
+  padding: 80px 0;
+  min-height: 60vh;
+}
+
+/* Footer layout */
+.site-footer {
+  text-align: center;
+  padding: 60px 0;
+  font-size: 0.85rem;
+  color: #a0a0a0;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Robot Positioning and Animation Logic 
+*/
+
+.robot-interaction-wrapper {
+  position: relative;
+  width: 100%;
+  height: 0; /* Container itself doesn't take height to avoid pushing text */
+}
+
+.robot-widget {
+  position: absolute;
+  top: -20px;    /* Floating slightly above the first line */
+  right: -80px;      /* Aligned to the right margin of the container */
+  width: 300px;  /* Desktop size */
+  height: 300px;
+  cursor: pointer;
+  z-index: 100;
+}
+
+#Left_x5F_Arm {
+  transform-origin: 110px 216px; 
+  transition: transform 0.3s ease-out;
+}
+
+@keyframes wave-animation {
+  0% { transform: rotate(0deg); }
+  30% { transform: rotate(16deg); } 
+  50% { transform: rotate(12deg); }
+  80% { transform: rotate(-8deg); } 
+  100% { transform: rotate(0deg); } 
+}
+
+.is-waving #Left_x5F_Arm {
+  animation: wave-animation 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
