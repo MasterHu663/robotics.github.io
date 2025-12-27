@@ -1,0 +1,63 @@
+---
+layout: default
+---
+
+<div class="resource-wrapper">
+    <aside class="sidebar-left">
+        <nav class="resource-nav">
+            <h4>RESOURCES</h4>
+            <ul>
+                <li><a href="{{ '/resources/deep-learning' | relative_url }}">Deep Learning</a></li>
+                <li><a href="{{ '/resources/reinforcement-learning' | relative_url }}">Reinforcement Learning</a></li>
+                <li><a href="{{ '/resources/control-theory' | relative_url }}">Control Theory</a></li>
+                <li><a href="{{ '/resources/path-planner' | relative_url }}">Path Planner</a></li>
+                <li><a href="{{ '/resources/rl-env' | relative_url }}">RL Env</a></li>
+                <li><a href="{{ '/resources/robotc-model' | relative_url }}">Robotc Model</a></li>
+                </ul>
+        </nav>
+    </aside>
+
+    <article class="resource-article">
+        {{ content }}
+    </article>
+
+    <aside class="sidebar-right">
+        <div class="toc-container">
+            <h4>ON THIS PAGE</h4>
+            <div id="toc"></div> </div>
+    </aside>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.18.2/tocbot.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.18.2/tocbot.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    tocbot.init({
+      tocSelector: '#toc',
+      contentSelector: '.resource-article',
+      headingSelector: 'h2, h3',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      scrollSmoothOffset: -100
+    });
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    tocbot.init({
+      tocSelector: '#toc',
+      contentSelector: '.resource-article',
+      headingSelector: 'h2, h3',
+      hasInnerContainers: true,
+      
+      scrollSmooth: true,
+      scrollSmoothOffset: -100,
+      headingsOffset: 100,
+      
+      onClick: function (e) {
+        console.log("Clicked heading:", e.target);
+      }
+    });
+  });
+</script>

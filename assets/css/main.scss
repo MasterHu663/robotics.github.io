@@ -20,7 +20,7 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: 'Inter', sans-serif;
-  line-height: 1.6;
+  line-height: 2.2;
 }
 
 /* Centralized layout container */
@@ -30,9 +30,16 @@ body {
   padding: 0 20px;
 }
 
+.container img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%; /* 防止图片超出屏幕 */
+}
+
 /* Header layout using Flexbox */
 .site-header {
-  padding: 15px 0;
+  padding: 10px 0;
   border-bottom: 1px solid var(--border-color);
 
   .nav-container {
@@ -80,7 +87,7 @@ body {
 
 /* Main content spacing */
 main {
-  padding: 80px 0;
+  padding: 30px 0;
   min-height: 60vh;
 }
 
@@ -93,8 +100,7 @@ main {
   border-top: 1px solid var(--border-color);
 }
 
-/* Robot Positioning and Animation Logic 
-*/
+/* Robot Positioning and Animation Logic */
 
 .robot-interaction-wrapper {
   position: relative;
@@ -129,3 +135,215 @@ main {
   animation: wave-animation 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   will-change: transform;
 }
+
+.resource-wrapper {
+    display: grid;
+    grid-template-columns: 200px 800px 250px;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0px; 
+    min-height: 80vh;
+}
+
+.resource-article {
+    padding-top: 0; 
+    margin-top: 0;
+}
+
+.resource-article ol, .resource-article ul{
+
+    margin-left: 0;
+    padding-left: 0;
+    
+    padding-left: 1.5rem; 
+    
+    list-style-position: outside; 
+}
+
+// .sidebar-left, .sidebar-right {
+//     position: sticky;
+//     top: 20px;
+//     height: calc(100vh - 40px);
+//     overflow-y: auto;
+// }
+
+.resource-article img {
+    max-width: 100%;
+    height: auto;
+}
+
+.resource-article li {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.sidebar-left {
+    position: sticky;
+    top: 20px;
+    height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+.resource-nav ul {
+    padding: 0 ;
+    margin: 0 ;
+}
+
+.resource-nav a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 1.0rem;
+    display: block;
+    padding: 3px 0;               
+    transition: color 0.2s ease; 
+}
+
+.resource-nav a:hover {
+  color: var(--accent-color);
+  opacity: 1;
+  padding-left: 4px;
+}
+
+.sidebar-right {
+    position: sticky;
+    top: 20px;
+    height: calc(100vh - 40px);
+    overflow-y: auto;
+    border-left: 1px solid var(--border-color); 
+    padding-left: 15px;
+}
+
+#toc ul, #toc li {
+    list-style: none !important;
+    padding: 0;
+    margin: 0;
+}
+
+#toc .toc-link {
+    text-decoration: none !important;
+    color: #666; 
+    font-size: 0.9rem;
+    display: block;
+    padding: 2px 0;
+}
+
+#toc .is-active-link {
+    color: var(--accent-color) !important;
+    font-weight: bold;
+}
+
+/* 1. 代码块容器整体样式 */
+.resource-article pre {
+    background: #1e1e1e; /* 深色背景 */
+    color: #d4d4d4;
+    padding: 35px 15px 15px; /* 顶部多留一点空间放按钮 */
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow-x: auto;
+    border: 1px solid #333;
+    line-height: 1.5;
+    margin: 2rem 0;
+}
+
+/* 2. 制作苹果窗口控制按钮 */
+.resource-article pre::before {
+    /* 红、黄、绿三个圆点 */
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 15px;
+    width: 12px;
+    height: 12px;
+    background: #ff5f56; /* 红 */
+    border-radius: 50%;
+    box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f; /* 黄和绿用阴影画出来 */
+}
+
+/* 3. 字体设置 */
+.resource-article code {
+    font-family: 'JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9rem;
+    background: transparent !important; /* 去掉默认背景 */
+    padding: 0 !important;
+}
+
+/* 4. 滚动条美化 (macOS 风格) */
+.resource-article pre::-webkit-scrollbar {
+    height: 8px;
+}
+.resource-article pre::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 4px;
+}
+.resource-article pre::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* 基本颜色 */
+.highlight .hll { background-color: #373c45 }
+.highlight .c { color: #5c6370; font-style: italic } /* 注释 */
+.highlight .k { color: #c678dd } /* 关键词: class, def, if */
+.highlight .l { color: #d19a66 } /* 数字 */
+.highlight .n { color: #abb2bf } /* 普通变量 */
+.highlight .o { color: #56b6c2 } /* 运算符 */
+.highlight .p { color: #abb2bf } /* 标点 */
+.highlight .s { color: #98c379 } /* 字符串 */
+.highlight .nc { color: #e5c07b } /* 类名 */
+.highlight .nf { color: #61afef } /* 函数名 */
+.highlight .nb { color: #e5c07b } /* 内置对象 self */
+.highlight .nn { color: #e5c07b } /* 模块名 */
+.highlight .bp { color: #e5c07b } /* self 参数 */
+
+
+/* 表格外部容器，防止在移动端撑破布局 */
+.resource-article table {
+    display: block;
+    width: 100%;
+    overflow-x: auto; /* 关键：防止公式撑开表格导致页面变宽 */
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    overflow: hidden; /* 配合圆角使用 */
+    border: 1px solid var(--border-color);
+}
+
+/* 表头样式 */
+.resource-article th {
+    background-color: var(--bg-color); /* 或者使用稍微深一点的颜色 */
+    color: var(--accent-color); /* 使用你的工程蓝 */
+    font-weight: 600;
+    text-align: left;
+    padding: 15px 20px;
+    border-bottom: 2px solid var(--border-color);
+    min-width: 120px;   /* 强制每个格子至少 120px 宽 */
+    line-height: 1.6;   /* 增加行高 */
+}
+
+/* 单元格样式 */
+.resource-article td {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+/* 隔行变色（斑马纹），增加可读性 */
+.resource-article tr:nth-child(even) {
+    background-color: rgba(37, 99, 235, 0.03); /* 极淡的蓝色背景 */
+}
+
+/* 悬停高亮 */
+.resource-article tr:hover {
+    background-color: rgba(37, 99, 235, 0.08);
+    transition: background-color 0.2s ease;
+}
+
+/* 针对表格内数学公式的微调 */
+.resource-article td .mjx-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: middle;
+}
+

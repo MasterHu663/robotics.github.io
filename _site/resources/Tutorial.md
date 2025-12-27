@@ -1,0 +1,295 @@
+# Tutorial for Collie
+
+## Chassis - 运动学解算
+
+> chassis 类型：麦克纳姆轮底盘
+
+### 1. 机器人的位姿与运动
+
+1. 在空间中，描述机器人的**位姿**（位置和姿态）需要六个变量，位置为机器人在空间坐标系的坐标，姿态为机器人分别绕xyz轴的转角
+
+   | **位置** | x                  | y                   | z                  |
+   | :------- | ------------------ | ------------------- | ------------------ |
+   | **姿态** | **Yaw （航向角）** | **Pitch（俯仰角）** | **Roll（翻滚角）** |
+
+   相应地，机器人的**运动**需要六个变量来描述，分别对应机器人位姿中的各个变量
+
+   | **Linear（线速度）**  | $\boldsymbol{V_x}$      | $\boldsymbol{V_y}$      | $\boldsymbol{V_z}$      |
+   | :-------------------- | :---------------------- | :---------------------- | :---------------------- |
+   | **Angular（角速度）** | $\boldsymbol{\omega_x}$ | $\boldsymbol{\omega_y}$ | $\boldsymbol{\omega_z}$ |
+
+2. 在平面中，可以减少描述机器人位姿/运动的变量，如下图所示，分别需要三个变量来描述机器人。
+
+   | 位姿     | x                  | **y**              | $\boldsymbol\theta$                 |
+   | :------- | :----------------- | :----------------- | :---------------------------------- |
+   | **运动** | $\boldsymbol{V_x}$ | $\boldsymbol{V_y}$ | $\boldsymbol{\omega\ or\ \omega_z}$ |
+
+### 2. 麦克纳姆轮底盘的运动学关系
+
+![底盘状态](./image/底盘状态.png)
+
+如上图所示，从左到右底盘依此为前移、右移、自旋
+
+符号所表示的含义为：
+$$
+\boldsymbol{V_t-V_{tyre}\ \ \ \ V_m-V_{motor}\ \ \ \ V_c-V_{chassis}\ \ \ \ \omega_c-\omega_{chassis}\ \ \ \ a-底盘边长}
+$$
+
+
+1. 前移状态下：
+   $$
+   V_c=V_m=\frac{\sqrt2}{2}V_t=V_x
+   $$
+
+2. 右移状态下：
+   $$
+   V_c=V_m=\frac{\sqrt2}{2}V_t=V_y
+   $$
+
+3. 自旋状态下：
+   $$
+   \omega_c\times\frac{a}{2}=V_m=\frac{\sqrt{2}}{2}V_t=\omega
+   $$
+
+不难发现，前移、右移、自旋的（角）速度恰好对应平面机器人运动的三个变量$V_x$，$V_y$，$\omega_c$，用这三个变量代替不同情况下的$V_c$（$\omega_c$)，再对四个轮子的速度进行运动学解算：
+$$
+\boldsymbol{V_m}=
+ \left[
+ \begin{matrix}
+   V_q & V_p  \\
+   V_d & V_b  \\
+  \end{matrix}
+  \right]
+  =\boldsymbol{V_{m1}}+\boldsymbol{V_{m2}}+\boldsymbol{V_{m3}}
+  =V_x
+ \left[
+ \begin{matrix}
+   1 & 1  \\
+   1 & 1  \\
+  \end{matrix}
+  \right]
+  +V_y
+   \left[
+ \begin{matrix}
+   1 & -1  \\
+   -1 & 1  \\
+  \end{matrix}
+  \right]
+  +\omega_c\times\frac{a}{2}
+     \left[
+ \begin{matrix}
+   1 & -1  \\
+   1 & -1  \\
+  \end{matrix}
+  \right]
+$$
+可知四个电机的速度分别为：
+$$
+\left\{
+\begin{aligned}
+V_q=V_x+V_y+\frac{\omega_ca}{2} \\
+V_p=V_x-V_y-\frac{\omega_ca}{2} \\
+V_d=V_x-V_y+\frac{\omega_ca}{2} \\
+V_b=V_x+V_y-\frac{\omega_ca}{2} \\
+\end{aligned}
+\right.
+$$
+另外，有时我们希望用极坐标系（$r,\ \theta$）代替笛卡尔坐标系：
+$$
+\left\{
+\begin{aligned}
+V_x=V_r\cos\theta \\ 
+V_y=V_r\sin\theta \\ 
+\end{aligned}
+\right.
+$$
+可得：
+$$
+\left\{
+\begin{aligned}
+V_q=V_r\cos \theta +V_r\sin \theta +\frac{\omega_ca}{2} \\
+V_p=V_r\cos \theta -V_r\sin \theta -\frac{\omega_ca}{2} \\
+V_d=V_r\cos \theta -V_r\sin \theta +\frac{\omega_ca}{2} \\
+V_b=V_r\cos \theta +V_r\sin \theta -\frac{\omega_ca}{2} \\
+\end{aligned}
+\right.
+$$
+到此，我们就可以设定 $V_x,\ V_y,\ \omega$ 或者 $V_r,\ \theta,\ \omega$ ，计算相应的$\boldsymbol{V_m}$输入到四个电机中，完成对底盘的控制
+
+### 3. 电机的控制策略
+
+#### 3.1 步进电机控制
+
+> **总结来说，步进电机的控制方式为一个脉冲的上升沿使电机转轴转动一步**
+
+步进电机转动一步的角度为：
+$$
+步进电机的步长=\frac{步距角(1.8\degree)}{细分}
+$$
+细分定义为 $dvd$，同时，我们将步进电机走过的步的数量（亦即步数）定义为 $step\_cnt$ （$=$ 脉冲或脉冲上升沿的数量）。
+
+给步进电机装上轮胎（轮胎直径为$D$），假设单位时间 $t$ 步进电机的步数为 $step\_cnt$  ，则可以换算单个轮胎的速度：
+$$
+V_m=\frac{step\_cnt}{t}\cdot\frac{\pi}{200\cdot dvd}\cdot D
+$$
+现在我们从单片机控制的角度分析$\frac{step\_cnt}{t}$这一部分，设为 $\overline{v_m}$ ：
+$$
+\overline{v_m}=\frac{step\_cnt}{t}
+$$
+将 $step \_cnt$ 取1，则 $t$ 趋近于0，可以将此时的 $\overline{v_m}$ 视作瞬时速度：
+$$
+v_m=\frac{1}{t/step\_cnt}=\frac{1}{\Delta t}
+$$
+不难发现，对于单片机输出脉冲来说，$\Delta t$ 就相当于两个脉冲（两个上升沿）之间的时间间隔，在单片机中我们记为 $T$，也就是时间常数，因此，可以将此时的 $v_m$ 近似看作瞬时速度：
+$$
+v_m=\frac{1}{T}=f(频率)
+$$
+我们通常已知的是 $V_m$ ，可由（10）换算得：
+$$
+v_m=\frac{200\ dvd}{\pi D}\cdot V_m=\frac{1}{T}
+$$
+在单片机中，我们最关心 $T$ ，假设给定的 $v_m = v_m(t)$ ，则：
+$$
+T_i=\frac{1}{v_m}=\frac{1}{v_m(t)}\ ,\ \ t=\sum _{n=0}^{i-1} T_n
+$$
+**采用STM32比较输出的方式进行PFM输出**
+
+我们可以调制出任意时间的高电平时间和低电平时间，以STM32F407VGT6为例，主频为168MHz，设为 $F_t$ ，自动重装载值为ARR，预分频为PSC，溢出时间为 $T_{out}$ ，则：
+$$
+\frac{(PSC+1)(ARR+1)}{F_t}=T_{out}
+$$
+单片机中会自动对PSC、ARR的值加1，将ARR设置为最大（$65535-1$），PSC设置为（$1-1$），通过设置CCR的值，进入中断后翻转引脚的电平，并重新设置CCR的值（由于两次电平翻转才会间隔一个脉冲，所以两次中断才改变CRR的间隔），即可对步进电机进行调速，T和CCR之间的转化关系为：
+$$
+T=2\times\frac{\Delta CCR\times(PSC+1)}{168\times10^6}
+$$
+则：
+$$
+\Delta CCR=\frac{84\times10^6\cdot T}{PSC+1}=\frac{84\times10^6}{v_m\cdot(PSC+1)}
+$$
+注意，由于CCR的值不能超过ARR，电机的脉冲间隔最多为：
+$$
+T_{max}=2\times\frac{65532\times(PSC+1)}{168\times10^6}=7.8\times10^{-4}(PSC+1)s=780(PSC+1)\mu s
+$$
+所以：
+$$
+v_{m\_min}=\frac{1}{T_{max}}=\frac{1281}{PSC+1}
+$$
+如果步进电机的驱动器能到达32细分，大概设置最小转速约为30$\degree$/s，则PSC取4，那么：
+$$
+\Delta CCR=16.8\times10^6\times T
+$$
+上述的讨论都是在描述一个步进电机的状态，当我们需要对整体的机器人进行控制时，就需要结合底盘的运动学关系进行解算，对于麦克纳姆轮底盘，我们已知可以用 $V_r,\ \theta,\ \omega_c$ 描述整体机器人的运动状态，也就是 $V_r(t),\ \theta(t),\ \omega_c(t)$ ：
+
+$$
+\left\{
+\begin{aligned}
+V_q(t)=V_r(t)\cos \theta(t) +V_r(t)\sin \theta(t) +\frac{\omega_c(t)a}{2} \\
+V_p(t)=V_r(t)\cos \theta(t) -V_r(t)\sin \theta(t) -\frac{\omega_c(t)a}{2} \\
+V_d(t)=V_r(t)\cos \theta(t) -V_r(t)\sin \theta(t) +\frac{\omega_c(t)a}{2} \\
+V_b(t)=V_r(t)\cos \theta(t) +V_r(t)\sin \theta(t) -\frac{\omega_c(t)a}{2} \\
+\end{aligned}
+\right.\\
+$$
+将 $V_q(t),V_p(t),V_q(t),V_q(t)$ 分别代入（10）式后再经（15）式分别解算，即可获知每个电机的 $T_i$ 数组。
+$$
+ \begin{aligned}
+ \bold {V_motor} 
+ &= \left[
+ \begin{matrix}
+   v_q & v_p  \\
+   v_d & v_b  \\
+  \end{matrix}
+  \right] \\ \\
+ &= v\cos\theta
+ \left[
+ \begin{matrix}
+   1 & 1  \\
+   1 & 1  \\
+  \end{matrix}
+  \right]
+  +v\sin\theta
+   \left[
+ \begin{matrix}
+   1 & -1  \\
+   -1 & 1  \\
+  \end{matrix}
+  \right]
+  +\frac{\omega a}{2}
+     \left[
+ \begin{matrix}
+   1 & -1  \\
+   1 & -1  \\
+  \end{matrix}
+  \right] \\
+  \end{aligned}
+$$
+
+
+#### 3.2 伺服电机控制
+
+
+
+
+
+
+
+
+
+## Kinematic Model
+
+### 1. Bicycle Model
+
+> **Ref:** https://thomasfermi.github.io/Algorithms-for-Automated-Driving/Introduction/intro.html#
+
+The kinematic bicycle model is the **Bicycle Model** together with the assumption that all slip angles are zero. Using this assumption together with our knowledge about the ICR (instantaneous center of rotation).
+
+<img src="/Users/huyihao/Desktop/ZJU/Project/Robotics/image/BicycleModelGeometry.svg" alt="BicycleModelGeometry" style="zoom:100%;" />
+
+By the property of the ICR, we know that the rear wheel will move along the black circular arc in the figure above. Finally, we should convince ourselves that the angle in the bottom left of figure is equal to the wheel steer angle $\delta$.
+
+We find,
+$$
+\tan(\delta) = \frac{L}{R}
+$$
+Using $v=\Omega_zR$, where $v$ denotes the velocity magnitude, we can solve this for steer angle:
+$$
+\delta = \arctan (\frac{L\Omega_z}{v})
+$$
+If we define $(x,y)$ as the position of the rear wheel in some global reference frame, and $\theta$ as the angle of the bicycle's forward direction with respect to the x-axis, then
+$$
+\dot \theta = \Omega_z = \frac{v\tan(\delta)}{L} \\
+(\dot \theta \rightarrow \delta_{\mathrm {ICR}},\ \Omega_z \rightarrow \delta_{\mathrm {wheel}})
+$$
+If we define the state of our bicycle model as $(x,y,\theta,v)$, then it has the nonlinear dynamics
+$$
+\frac{d}{dt}
+\left(
+\begin{matrix}
+    x  \\
+    y  \\
+    \theta \\
+    v
+\end{matrix}
+\right)=
+\left(
+\begin{matrix}
+    v\cos(\theta)  \\
+    v\sin(\theta)  \\
+    v\tan(\delta)/L \\
+    a
+\end{matrix}
+\right)
+$$
+Here, $a$ is the forwards acceleration, and the expressions $dx/dt = v\cos(\theta)$ and $dy/dt = v\sin(\theta)$ are motivated geometrically by the following sketch.
+
+<img src="/Users/huyihao/Desktop/ZJU/Project/Robotics/image/BicycleModel_x_y_theta.svg" alt="BicycleModel_x_y_theta" style="zoom:100%;" />
+
+### 2. Ackermann Model
+
+The **Ackermann model** can be effectively defined and analyzed using the bicycle model, or we can say, the Bicycle Model is a simplified Ackermann Model (in the figure following). In practice applications, the **bicycle model** is a **simplified representation of a vehicle's dynamics**, especially useful for modeling lateral motion and steering behavior.
+
+<img src="/Users/huyihao/Desktop/ZJU/Project/Robotics/image/BicycleModel.svg" alt="BicycleModel" style="zoom:100%;" />
+
+Next, conside the front wheels of the Ackermann model. It is worth noting that the wheel steer angles $(\delta_l,\delta_r)$ always satisfy $\delta_l \ne \delta_r$. (The ICR method is all you need!) 
+
+<img src="/Users/huyihao/Desktop/ZJU/Project/Robotics/image/ICR_Slip.svg" alt="ICR_Slip" style="zoom:100%;" />

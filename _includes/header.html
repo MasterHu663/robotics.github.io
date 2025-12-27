@@ -1,13 +1,12 @@
-<header class="site-header">
-  <nav class="nav-container">
+<nav class="nav-container">
     <a href="{{ '/' | relative_url }}" class="nav-logo">
-      DEV<span class="highlight">PORTFOLIO</span>
+        {{ site.title }}<span class="highlight">.</span>
     </a>
+    
     <ul class="nav-links">
-      <li><a href="{{ '/' | relative_url }}">Home</a></li>
-      <li><a href="{{ '/projects' | relative_url }}">Projects</a></li>
-      <li><a href="{{ '/blog' | relative_url }}">Blog</a></li>
-      <li><a href="{{ '/contact' | relative_url }}">Contact</a></li>
+        <li><a href="{{ '/' | relative_url }}">HOME</a></li>
+        <li><a href="{{ '/projects' | relative_url }}">PROJECTS</a></li>
+        <li><a href="{{ '/resources' | relative_url }}">RESOURCES</a></li>
+        <li><a href="{{ '/contact' | relative_url }}">CONTACT</a></li>
     </ul>
-  </nav>
-</header>
+</nav>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASTERHU</title>
+    
+    <link rel="stylesheet" href="/robotics.github.io/assets/css/main.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+
+    
+</head>
+
+<body>
+    <header class="site-header">
+        <nav class="nav-container">
+    <a href="/robotics.github.io/" class="nav-logo">
+        MASTERHU<span class="highlight">.</span>
+    </a>
+    
+    <ul class="nav-links">
+        <li><a href="/robotics.github.io/">HOME</a></li>
+        <li><a href="/robotics.github.io/projects">PROJECTS</a></li>
+        <li><a href="/robotics.github.io/resources">RESOURCES</a></li>
+        <li><a href="/robotics.github.io/contact">CONTACT</a></li>
+    </ul>
+</nav>
+
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="resource-wrapper">
+    <aside class="sidebar-left">
+        <nav class="resource-nav">
+            <h4>RESOURCES</h4>
+            <ul>
+                <li><a href="/robotics.github.io/resources/deep-learning">Deep Learning</a></li>
+                <li><a href="/robotics.github.io/resources/reinforcement-learning">Reinforcement Learning</a></li>
+                <li><a href="/robotics.github.io/resources/control-theory">Control Theory</a></li>
+                <li><a href="/robotics.github.io/resources/path-planner">Path Planner</a></li>
+                <li><a href="/robotics.github.io/resources/rl-env">RL Env</a></li>
+                <li><a href="/robotics.github.io/resources/robotc-model">Robotc Model</a></li>
+                </ul>
+        </nav>
+    </aside>
+
+    <article class="resource-article">
+        <div class="resource-home">
+    <h1 class="home-title">Knowledge Base</h1>
+    <p class="home-subtitle">Engineering notes, research summaries, and robotics manuals.</p>
+</div>
+
+    </article>
+
+    <aside class="sidebar-right">
+        <div class="toc-container">
+            <h4>ON THIS PAGE</h4>
+            <div id="toc"></div> </div>
+    </aside>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.18.2/tocbot.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.18.2/tocbot.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    tocbot.init({
+      tocSelector: '#toc',
+      contentSelector: '.resource-article',
+      headingSelector: 'h2, h3',
+      hasInnerContainers: true,
+      scrollSmooth: true,
+      scrollSmoothOffset: -100
+    });
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    tocbot.init({
+      tocSelector: '#toc',
+      contentSelector: '.resource-article',
+      headingSelector: 'h2, h3',
+      hasInnerContainers: true,
+      
+      scrollSmooth: true,
+      scrollSmoothOffset: -100,
+      headingsOffset: 100,
+      
+      onClick: function (e) {
+        console.log("Clicked heading:", e.target);
+      }
+    });
+  });
+</script>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; 2025 MASTERHU. Built by a Robotic Engineer.</p>
+    </footer>
+
+    <script src="/robotics.github.io/assets/js/main.js"></script>
+    <script src="/robotics.github.io/assets/js/robot.js"></script>
+</body>
+</html>

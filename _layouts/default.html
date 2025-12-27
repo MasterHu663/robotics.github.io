@@ -8,21 +8,25 @@
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
-</head>
-<body>
 
+    {% if page.mathjax %}
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+    window.MathJax = {
+        tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+        }
+    };
+    </script>
+    {% endif %}
+</head>
+
+<body>
     <header class="site-header">
-        <nav class="nav-container">
-            <a href="{{ '/' | relative_url }}" class="nav-logo">
-                {{ site.title }}<span class="highlight">.</span>
-            </a>
-            
-            <ul class="nav-links">
-                <li><a href="/">HOME</a></li>
-                <li><a href="/projects">PROJECTS</a></li>
-                <li><a href="/contact">CONTACT</a></li>
-            </ul>
-        </nav>
+        {% include header.html %}
     </header>
 
     <main class="main-content">
@@ -36,8 +40,6 @@
     </footer>
 
     <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
-
     <script src="{{ '/assets/js/robot.js' | relative_url }}"></script>
-
 </body>
 </html>
