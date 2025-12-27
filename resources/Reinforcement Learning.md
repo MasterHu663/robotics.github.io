@@ -1,7 +1,7 @@
 ---
 layout: resource-layout
 title: Reinforcement Learning
-permalink: /resources/Reinforcement-Learning
+permalink: /resources/reinforcement-learning
 mathjax: true
 ---
 
