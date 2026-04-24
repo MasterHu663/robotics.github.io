@@ -103,8 +103,13 @@
     Returns:
       observation (ObsType): An element of the environment's :attr:`observation_space` as the next observation due to the agent actions.
       reward (SupportsFloat): The reward as a result of taking the action.
+      
+      NOTE
       terminated (bool): Whether the agent reaches the terminal state (as defined under the MDP of the task)
+      * Tell the agent that all future rewards are zero! *
       truncated (bool): Whether the truncation condition outside the scope of the MDP is satisfied.
+      * Tell the agent to bootstrap the value function for future rewards! *
+      
       info (dict): Contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
     """</span>
   	<span class="k">raise</span> <span class="nb">NotImplementedError</span>
@@ -133,6 +138,282 @@
   <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">pass</span>
 </code></pre></div></div>
+
+<h2 id="2-skrl">2. Skrl</h2>
+
+<h3 id="21-env-wrapper">2.1 Env Wrapper</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Wrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="s">"""Base wrapper class for RL environments
+
+        :param env: The environment to wrap
+        :type env: Any supported RL environment
+        """</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_env</span> <span class="o">=</span> <span class="n">env</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_env</span><span class="p">.</span><span class="n">unwrapped</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span> <span class="o">=</span> <span class="n">env</span>
+
+        <span class="c1"># device
+</span>        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span><span class="p">,</span> <span class="s">"device"</span><span class="p">):</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">_device</span> <span class="o">=</span> <span class="n">config</span><span class="p">.</span><span class="n">torch</span><span class="p">.</span><span class="n">parse_device</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span><span class="p">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">_device</span> <span class="o">=</span> <span class="n">config</span><span class="p">.</span><span class="n">torch</span><span class="p">.</span><span class="n">parse_device</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="s">"""Get an attribute from the wrapped environment
+
+        :param key: The attribute name
+        :type key: str
+
+        :raises AttributeError: If the attribute does not exist
+
+        :return: The attribute value
+        :rtype: Any
+        """</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_env</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_env</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="nb">AttributeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s">"Wrapped environment (</span><span class="si">{</span><span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span><span class="p">.</span><span class="n">__class__</span><span class="p">.</span><span class="n">__name__</span><span class="si">}</span><span class="s">) does not have attribute '</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s">'"</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="s">"""Reset the environment
+
+        :raises NotImplementedError: Not implemented
+
+        :return: Observation, info
+        :rtype: torch.Tensor and any other info
+        """</span>
+        <span class="k">raise</span> <span class="nb">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="s">"""Perform a step in the environment
+
+        :param actions: The actions to perform
+        :type actions: torch.Tensor
+
+        :raises NotImplementedError: Not implemented
+
+        :return: Observation, reward, terminated, truncated, info
+        :rtype: tuple of torch.Tensor and any other info
+        """</span>
+        <span class="k">raise</span> <span class="nb">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="s">"""Get the environment state
+
+        :raises NotImplementedError: Not implemented
+
+        :return: State
+        :rtype: torch.Tensor
+        """</span>
+        <span class="k">raise</span> <span class="nb">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="s">"""Render the environment
+
+        :raises NotImplementedError: Not implemented
+
+        :return: Any value from the wrapped environment
+        :rtype: any
+        """</span>
+        <span class="k">raise</span> <span class="nb">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="s">"""Close the environment
+
+        :raises NotImplementedError: Not implemented
+        """</span>
+        <span class="k">raise</span> <span class="nb">NotImplementedError</span>
+
+    <span class="o">@</span><span class="nb">property</span>
+    <span class="k">def</span> <span class="nf">device</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="p">.</span><span class="n">device</span><span class="p">:</span>
+        <span class="s">"""The device used by the environment
+
+        If the wrapped environment does not have the ``device`` property, the value of this property
+        will be ``"cuda"`` or ``"cpu"`` depending on the device availability
+        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_device</span>
+
+    <span class="o">@</span><span class="nb">property</span>
+    <span class="k">def</span> <span class="nf">num_envs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="s">"""Number of environments
+
+        If the wrapped environment does not have the ``num_envs`` property, it will be set to 1
+        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span><span class="p">.</span><span class="n">num_envs</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span><span class="p">,</span> <span class="s">"num_envs"</span><span class="p">)</span> <span class="k">else</span> <span class="mi">1</span>
+
+    <span class="o">@</span><span class="nb">property</span>
+    <span class="k">def</span> <span class="nf">num_agents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="s">"""Number of agents
+
+        If the wrapped environment does not have the ``num_agents`` property, it will be set to 1
+        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span><span class="p">.</span><span class="n">num_agents</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span><span class="p">,</span> <span class="s">"num_agents"</span><span class="p">)</span> <span class="k">else</span> <span class="mi">1</span>
+
+    <span class="o">@</span><span class="nb">property</span>
+    <span class="k">def</span> <span class="nf">state_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">gymnasium</span><span class="p">.</span><span class="n">Space</span><span class="p">,</span> <span class="bp">None</span><span class="p">]:</span>
+        <span class="s">"""State space
+
+        If the wrapped environment does not have the ``state_space`` property, ``None`` will be returned
+        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span><span class="p">.</span><span class="n">state_space</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span><span class="p">,</span> <span class="s">"state_space"</span><span class="p">)</span> <span class="k">else</span> <span class="bp">None</span>
+
+    <span class="o">@</span><span class="nb">property</span>
+    <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gymnasium</span><span class="p">.</span><span class="n">Space</span><span class="p">:</span>
+        <span class="s">"""Observation space"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span><span class="p">.</span><span class="n">observation_space</span>
+
+    <span class="o">@</span><span class="nb">property</span>
+    <span class="k">def</span> <span class="nf">action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gymnasium</span><span class="p">.</span><span class="n">Space</span><span class="p">:</span>
+        <span class="s">"""Action space"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_unwrapped</span><span class="p">.</span><span class="n">action_space</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">GymnasiumWrapper</span><span class="p">(</span><span class="n">Wrapper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="s">"""Gymnasium environment wrapper
+
+        :param env: The environment to wrap
+        :type env: Any supported Gymnasium environment
+        """</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="p">.</span><span class="n">_vectorized</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">_vectorized</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_vectorized</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">gymnasium</span><span class="p">.</span><span class="n">vector</span><span class="p">.</span><span class="n">VectorEnv</span><span class="p">)</span>
+        <span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">_vectorized</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_vectorized</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">gymnasium</span><span class="p">.</span><span class="n">experimental</span><span class="p">.</span><span class="n">vector</span><span class="p">.</span><span class="n">VectorEnv</span><span class="p">)</span>
+        <span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="p">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s">"Failed to check for a vectorized environment: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_vectorized</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">_reset_once</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">_observation</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">_info</span> <span class="o">=</span> <span class="bp">None</span>
+        
+
+    <span class="o">@</span><span class="nb">property</span>
+    <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gymnasium</span><span class="p">.</span><span class="n">Space</span><span class="p">:</span>
+        <span class="s">"""Observation space"""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_vectorized</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_env</span><span class="p">.</span><span class="n">single_observation_space</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_env</span><span class="p">.</span><span class="n">observation_space</span>
+
+    <span class="o">@</span><span class="nb">property</span>
+    <span class="k">def</span> <span class="nf">action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gymnasium</span><span class="p">.</span><span class="n">Space</span><span class="p">:</span>
+        <span class="s">"""Action space"""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_vectorized</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_env</span><span class="p">.</span><span class="n">single_action_space</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_env</span><span class="p">.</span><span class="n">action_space</span>
+
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="s">"""Perform a step in the environment
+
+        :param actions: The actions to perform
+        :type actions: torch.Tensor
+
+        :return: Observation, reward, terminated, truncated, info
+        :rtype: tuple of torch.Tensor and any other info
+        """</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="n">untensorize_space</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">action_space</span><span class="p">,</span>
+            <span class="n">unflatten_tensorized_space</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">action_space</span><span class="p">,</span> <span class="n">actions</span><span class="p">),</span>
+            <span class="n">squeeze_batch_dimension</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="p">.</span><span class="n">_vectorized</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_env</span><span class="p">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+
+        <span class="c1"># convert response to torch
+</span>        <span class="n">observation</span> <span class="o">=</span> <span class="n">flatten_tensorized_space</span><span class="p">(</span><span class="n">tensorize_space</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">observation_space</span><span class="p">,</span> <span class="n">observation</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">device</span><span class="p">))</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">reward</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="n">float32</span><span class="p">).</span><span class="n">view</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">num_envs</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">terminated</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">terminated</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">bool</span><span class="p">).</span><span class="n">view</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">num_envs</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">truncated</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">truncated</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="p">.</span><span class="nb">bool</span><span class="p">).</span><span class="n">view</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">num_envs</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># save observation and info for vectorized envs
+</span>        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_vectorized</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">_observation</span> <span class="o">=</span> <span class="n">observation</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">_info</span> <span class="o">=</span> <span class="n">info</span>
+        
+        <span class="s">"""NOTE: DEFAULT next-step Auto-Reset
+        ENV[Terminated or Truncated] will save the final observation
+        and auto-reset in next step function (before ENV step)
+        Reference: https://gymnasium.farama.org/api/vector/#
+        """</span>
+
+        <span class="k">return</span> <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="p">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="s">"""Reset the environment
+
+        :return: Observation, info
+        :rtype: torch.Tensor and any other info
+        """</span>
+        <span class="c1"># handle vectorized environments (vector environments are autoreset)
+</span>        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_vectorized</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_reset_once</span><span class="p">:</span>
+                <span class="n">observation</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">_info</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_env</span><span class="p">.</span><span class="n">reset</span><span class="p">()</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">_observation</span> <span class="o">=</span> <span class="n">flatten_tensorized_space</span><span class="p">(</span>
+                    <span class="n">tensorize_space</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">observation_space</span><span class="p">,</span> <span class="n">observation</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">_reset_once</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_observation</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">_info</span>
+          
+        <span class="s">"""NOTE: Auto-Reset will not be constrained by self._vectorized
+        and the buffer(s,a,r,s‘) will not include the wrong buffer(s_n, a, r, s_1)
+        (s_{n-1},  a, r, s_n), (s_1,  a, r, s_2) (ignore s_0)
+        Reference: https://farama.org/Vector-Autoreset-Mode:
+          import gymnasium as gym
+          import numpy as np
+          from collections import deque
+
+          # Initialize environment, buffer and episode_start
+          envs = gym.vector.SyncVectorEnv(
+              [lambda: gym.make("CartPole-v1") for _ in range(2)],
+              autoreset_mode=gym.vector.AutoresetMode.NEXT_STEP
+          )
+          replay_buffer = deque(maxlen=100)
+          episode_start = np.zeros(envs.num_envs, dtype=bool)
+
+          observations, _ = envs.reset()
+          while True:   # Training loop
+              actions = policy(observations)
+              next_observations, rewards, terminations, truncations, infos = envs.step(actions)
+
+              # Add to replay buffer
+              for i in range(envs.num_envs):
+                  if not episode_start[i]:
+                      replay_buffer.append((observations[i], actions[i], </span><span class="se">\\</span><span class="s">
+                      rewards[i], terminations[i], next_observations[i]))
+
+              # update observation and if episode starts
+              observations = next_observations
+              episode_start = np.logical_or(terminations, truncations)
+          envs.close()
+        """</span>
+
+        <span class="n">observation</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_env</span><span class="p">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="n">observation</span> <span class="o">=</span> <span class="n">flatten_tensorized_space</span><span class="p">(</span><span class="n">tensorize_space</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">observation_space</span><span class="p">,</span> <span class="n">observation</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">device</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">observation</span><span class="p">,</span> <span class="n">info</span>
+
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="s">"""Render the environment"""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_vectorized</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_env</span><span class="p">.</span><span class="n">call</span><span class="p">(</span><span class="s">"render"</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_env</span><span class="p">.</span><span class="n">render</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="s">"""Close the environment"""</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_env</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h3 id="22-agent-algorithm">2.2 Agent Algorithm</h3>
 
 
     </article>
@@ -181,7 +462,7 @@
     </main>
 
     <footer class="site-footer">
-        <p>&copy; 2025 MASTERHU. Built by a Robotic Engineer.</p>
+        <p>&copy; 2026 MASTERHU. Built by a Robotic Engineer.</p>
     </footer>
 
     <script src="/robotics.github.io/assets/js/main.js"></script>

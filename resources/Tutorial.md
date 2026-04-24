@@ -192,8 +192,8 @@ V_b(t)=V_r(t)\cos \theta(t) +V_r(t)\sin \theta(t) -\frac{\omega_c(t)a}{2} \\
 $$
 将 $V_q(t),V_p(t),V_q(t),V_q(t)$ 分别代入（10）式后再经（15）式分别解算，即可获知每个电机的 $T_i$ 数组。
 $$
- \begin{aligned}
- \bold {V_motor} 
+\begin{aligned}
+ \mathbf {V_motor} 
  &= \left[
  \begin{matrix}
    v_q & v_p  \\

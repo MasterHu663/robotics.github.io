@@ -87,21 +87,41 @@
 
 <p>与全部可观测的情形不同，POMDP中的智能体不能可靠地确定他们的真实状态，$s$。他们依赖于一种信念状态，$b_t(s_t)$</p>
 
-<p>\(b_t(s_t)=p(s_t\ |\ z_{1:t},a_{1:t-1})\)
-信念空间被定义为：
-\(B(s)=\{b:S\rightarrow \mathbb{R}\ |\ \int b(s)ds=1,b(s) \ge0\}\)
-为了评估未来动作的效用，智能体必须获知动作后的状态信念分布
-\(b_{t+1}(s_{t+1})=p(s_{t+1}\ |\ z_{t+1},a_t,b_t(s_t))\)
-由于未来的观测对于智能体是未知的，我们只能考虑其预测值，假定$b_t(s_t)$下智能体会执行$a_t$的动作，转移到另一状态，其状态的概率密度分布为$p(s_{t+1})$
-\(p(z_{t+1}|b_t(s_t),a_t)=\int\int o(s_{t+1})t(s_t,a_t)b_t(s_t)ds_tds_{t+1}\)
-其中，$o(s_{t+1})=p(z_{t+1}|s_{t+1})$为观测模型，$t(s_t,a_t)=p(s_{t+1}|s_t)$为动作模型</p>
+\[b_t(s_t)=p(s_t\ |\ z_{1:t},a_{1:t-1})\]
 
-<p>既然信念状态可以作为一个充分的数据，寻找POMDP的最优化策略可以转化为寻找信念集合$B(S)$下的MDP的最优策略，这样的MDP模型为5元组$(B,A,\tau,\rho,\gamma)$，其中，$\tau$为置信状态转移函数，$\rho$为信念状态的奖励函数
-\(\rho(b_t,a_t)=\int_Sb_t(s_t)r(s_t,a_t)ds_t\)
-与 “原始” POMDP 不同（每个动作只能从一个状态获得），在相应的信念 MDP 中，所有信念状态都允许所有动作，因为你（几乎）总是有一定的概率相信你处于任何（原始）状态。因此，$\pi$ 指定任何信念$b$的动作 $a=\pi(b)$，于是，我们将策略$\pi_t$定义为从状态的信念空间到动作的映射
-\(\pi_t:B(S)\rightarrow A\)
-最优策略为
-\(\pi^*(b)=\arg \max_\pi\sum_{t=0}^{\infty}E[\gamma^t\rho(b_t,\pi(b_t)) ]\)</p>
+<p>信念空间被定义为：</p>
+
+\[B(s)=\{b:S\rightarrow \mathbb{R}\ |\ \int b(s)ds=1,b(s) \ge0\}\]
+
+<p>为了评估未来动作的效用，智能体必须获知动作后的状态信念分布</p>
+
+\[b_{t+1}(s_{t+1})=p(s_{t+1}\ |\ z_{t+1},a_t,b_t(s_t))\]
+
+<p>由于未来的观测对于智能体是未知的，我们只能考虑其预测值，假定$b_t(s_t)$下智能体会执行$a_t$的动作，转移到另一状态，其状态的概率密度分布为$p(s_{t+1})$</p>
+
+\[p(z_{t+1}|b_t(s_t),a_t)=\int\int o(s_{t+1})t(s_t,a_t)b_t(s_t)ds_tds_{t+1}\]
+
+<table>
+  <tbody>
+    <tr>
+      <td>其中，$o(s_{t+1})=p(z_{t+1}</td>
+      <td>s_{t+1})$为观测模型，$t(s_t,a_t)=p(s_{t+1}</td>
+      <td>s_t)$为动作模型</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>既然信念状态可以作为一个充分的数据，寻找POMDP的最优化策略可以转化为寻找信念集合$B(S)$下的MDP的最优策略，这样的MDP模型为5元组$(B,A,\tau,\rho,\gamma)$，其中，$\tau$为置信状态转移函数，$\rho$为信念状态的奖励函数</p>
+
+\[\rho(b_t,a_t)=\int_Sb_t(s_t)r(s_t,a_t)ds_t\]
+
+<p>与 “原始” POMDP 不同（每个动作只能从一个状态获得），在相应的信念 MDP 中，所有信念状态都允许所有动作，因为你（几乎）总是有一定的概率相信你处于任何（原始）状态。因此，$\pi$ 指定任何信念$b$的动作 $a=\pi(b)$，于是，我们将策略$\pi_t$定义为从状态的信念空间到动作的映射</p>
+
+\[\pi_t:B(S)\rightarrow A\]
+
+<p>最优策略为</p>
+
+\[\pi^*(b)=\arg \max_\pi\sum_{t=0}^{\infty}E[\gamma^t\rho(b_t,\pi(b_t)) ]\]
 
 <h3 id="2-travelling-salesman-problem-旅行商问题">2. Travelling salesman problem （旅行商问题）</h3>
 
@@ -271,7 +291,7 @@
     </main>
 
     <footer class="site-footer">
-        <p>&copy; 2025 MASTERHU. Built by a Robotic Engineer.</p>
+        <p>&copy; 2026 MASTERHU. Built by a Robotic Engineer.</p>
     </footer>
 
     <script src="/robotics.github.io/assets/js/main.js"></script>

@@ -1,0 +1,474 @@
+---
+layout: null
+title: PaperPlane Slerp Demo
+---
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PaperPlane Attitude Visualization</title>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; background-color: #ffffff; font-family: sans-serif; width: 100vw; height: 100vh; }
+        
+        /* background */
+        #renderer-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            cursor: move;
+        }
+
+        /* control panel */
+        .control-panel {
+            position: absolute;
+            top: 20px; right: 20px;
+            width: 320px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px; border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            z-index: 10;
+            display: flex; flex-direction: column; gap: 15px;
+            user-select: none;
+        }
+
+        /* back link */
+        .back-link {
+            text-decoration: none;
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: #3b82f6; }
+
+        /* Euler control  */
+        .euler-section { display: flex; flex-direction: column; gap: 10px; }
+        .euler-row { display: grid; grid-template-columns: 60px 1fr 50px; gap: 10px; align-items: center; }
+        
+        /* Quaternion grid */
+        .quat-grid {
+            display: grid; grid-template-columns: 15px 1fr 15px 1fr;
+            column-gap: 10px; row-gap: 10px; align-items: center;
+            background: #f3f4f6; padding: 10px; border-radius: 8px;
+        }
+        .quat-grid span { font-weight: bold; color: #6b21a8; font-family: monospace; }
+        .quat-grid input {
+            box-sizing: border-box; 
+            
+            width: 100%;
+            min-width: 0; 
+            
+            border: 1px solid #ddd;
+            padding: 2px 2px;
+            text-align: center;
+            background: white;
+        }
+
+        /* Buttons */
+        .button-group { display: flex; gap: 5px; flex-wrap: wrap; }
+        button { 
+            flex: 1; cursor: pointer; border: none; padding: 8px; 
+            border-radius: 4px; font-weight: bold; transition: 0.2s;
+        }
+        button:hover { filter: brightness(0.8); }
+        button:active { transform: translateY(1px); }
+    </style>
+</head>
+
+<body>
+    <div id="renderer-container"></div>
+
+    <div class="control-panel">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+            <a href="/robotics.github.io/resources/robotc-model" style="text-decoration: none; color: #666; font-size: 14px; display: flex; align-items: center; gap: 4px;">
+                <span style="font-size: 18px;">←</span> Back to Home
+            </a>
+        </div>
+        <h3 style="margin: 0; font-size: 18px; font-weight: bold; color: #333;">Attitude Control</h3>
+        
+        <div class="euler-section">
+            <div class="euler-row">
+                <span style="color:red; font-weight: bold;">Roll(X)</span>
+                <input type="range" id="s_roll" min="-180" max="180" step="0.1" value="0">
+                <input type="text" id="tx_roll" value="0.0">
+            </div>
+            <div class="euler-row">
+                <span style="color:green; font-weight: bold;">Pitch(Y)</span>
+                <input type="range" id="s_pitch" min="-180" max="180" step="0.1" value="0">
+                <input type="text" id="tx_pitch" value="0.0">
+            </div>
+            <div class="euler-row">
+                <span style="color:blue; font-weight: bold;">Yaw(Z)</span>
+                <input type="range" id="s_yaw" min="-180" max="180" step="0.1" value="0">
+                <input type="text" id="tx_yaw" value="0.0">
+            </div>
+        </div>
+
+        <div>
+            <p style="margin: 5px 0; font-size: 16px; font-weight: bold; color: #6b21a8;">Quaternion</p>
+            <div class="quat-grid">
+                <span>W=</span><input type="text" id="tx_qw" readonly tabindex="-1">
+                <span>X=</span><input type="text" id="tx_qx" readonly tabindex="-1">
+                <span>Y=</span><input type="text" id="tx_qy" readonly tabindex="-1">
+                <span>Z=</span><input type="text" id="tx_qz" readonly tabindex="-1">
+            </div>
+        </div>
+
+        <div style="border-top: 1px solid #ddd; padding-top: 10px;">
+            <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: bold;">Slerp Animation</p>
+            <div class="button-group">
+                <button id="btn_set_q1" style="background: #ef4444; color: white;">Lock q1</button>
+                <button id="btn_set_q2" style="background: #3b82f6; color: white;">Lock q2</button>
+                <button id="btn_reset" style="background: #6b7280; color: white;">Reset All</button>
+            </div>
+            <button id="btn_play_slerp" style="background: #10b981; color: white; width: 100%; margin-top: 5px;">▶ Play Interpolation</button>
+        </div>
+    </div>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // --- 初始化场景 ---
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
+
+    const container = document.getElementById('renderer-container');
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    camera.up.set(0, 0, 1);
+    camera.position.set(5, -5, 4);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(width, height);
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    window.addEventListener('resize', () => {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+    });
+
+    // model: paper plane
+    const planeGroup = new THREE.Group();
+    scene.add(planeGroup);
+
+    const s = 1.2; // factor for scaling the plane
+    const vertices = [
+        [0.7*s, 0, 0, -0.7*s, -0.6*s, 0, -0.7*s, -0.2*s, 0],
+        [0.7*s, 0, 0, -0.7*s, 0.2*s, 0, -0.7*s, 0.6*s, 0],
+        [0.7*s, 0, 0, -0.7*s, -0.2*s, 0, -0.7*s, 0, -0.3*s],
+        [0.7*s, 0, 0, -0.7*s, 0.2*s, 0, -0.7*s, 0, -0.3*s]
+    ];
+
+    vertices.forEach(v => {
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(v, 3));
+        const material = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide, transparent: false, opacity: 1.0});
+        const mesh = new THREE.Mesh(geometry, material);
+        const wireframe = new THREE.LineSegments(
+            new THREE.EdgesGeometry(geometry),
+            new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.3 })
+        );
+        planeGroup.add(mesh);
+        planeGroup.add(wireframe);
+    });
+
+    const gizmoGroup = new THREE.Group();
+    scene.add(gizmoGroup);
+    const radius = 2.0;
+
+    const createRing = (color, rotation) => {
+        const curve = new THREE.EllipseCurve(0, 0, radius, radius);
+        const points = curve.getPoints(100);
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.4 });
+        const line = new THREE.Line(geometry, material);
+        line.rotation.copy(rotation);
+        return line;
+    };
+
+    gizmoGroup.add(createRing(0xff5252, new THREE.Euler(0, Math.PI/2, 0))); // R
+    gizmoGroup.add(createRing(0x66bb6a, new THREE.Euler(Math.PI/2, 0, 0))); // G
+    gizmoGroup.add(createRing(0x42a5f5, new THREE.Euler(0, 0, 0)));         // B
+
+    const dotGeom = new THREE.SphereGeometry(0.03, 16, 16);
+    const dotR = new THREE.Mesh(dotGeom, new THREE.MeshBasicMaterial({color: 0xff5252}));
+    const dotG = new THREE.Mesh(dotGeom, new THREE.MeshBasicMaterial({color: 0x66bb6a}));
+    const dotB = new THREE.Mesh(dotGeom, new THREE.MeshBasicMaterial({color: 0x42a5f5}));
+    scene.add(dotR, dotG, dotB);
+
+    const createArrow = (dir, origin, length, color, opacity) => {
+        
+        const headLength = length * 0.09;
+        const headWidth = length * 0.06;
+
+        const arrow = new THREE.ArrowHelper(
+            dir.clone().normalize(), 
+            origin, 
+            length, 
+            color, 
+            headLength, 
+            headWidth
+        );
+        
+        arrow.line.material.transparent = true;
+        arrow.line.material.opacity = opacity;
+        
+        arrow.cone.material.transparent = true;
+        arrow.cone.material.opacity = opacity;
+        
+        return arrow;
+    };
+
+    const worldAxes = new THREE.Group();
+    const localAxes = new THREE.Group();
+    scene.add(worldAxes);
+    planeGroup.add(localAxes);
+
+    const colors = [0xff5252, 0x66bb6a, 0x42a5f5]; 
+    const dirs = [new THREE.Vector3(1,0,0), new THREE.Vector3(0,1,0), new THREE.Vector3(0,0,1)];
+
+    dirs.forEach((dir, i) => {
+        const origin = new THREE.Vector3(0, 0, 0);
+
+        worldAxes.add(createArrow(dir, origin, 2.0, colors[i], 0.8));
+        worldAxes.add(createArrow(dir.clone().negate(), origin, 2.0, colors[i], 0.3));
+
+        localAxes.add(createArrow(dir, origin, 1.3, colors[i], 1.0));
+    });
+
+    // --- UI components ---
+    const s_roll = document.getElementById('s_roll');
+    const s_pitch = document.getElementById('s_pitch');
+    const s_yaw = document.getElementById('s_yaw');
+    const tx_roll = document.getElementById('tx_roll');
+    const tx_pitch = document.getElementById('tx_pitch');
+    const tx_yaw = document.getElementById('tx_yaw');
+
+    const tx_qw = document.getElementById('tx_qw');
+    const tx_qx = document.getElementById('tx_qx');
+    const tx_qy = document.getElementById('tx_qy');
+    const tx_qz = document.getElementById('tx_qz');
+
+    let q1 = new THREE.Quaternion();
+    let q2 = new THREE.Quaternion();
+    let isSlerping = false;
+    let slerpAlpha = 0;
+    let isTextInputMode = false;
+
+    const tracePoints = [];
+    const maxTracePoints = 300;
+    const thickness = {
+        trace: 0.012, 
+        axis: 0.010,  
+        circle: 0.008 
+    };
+
+    let traceMesh = null;
+    let axisMesh = null;
+    let fullCircleMesh = null;
+
+    const headVector = new THREE.Vector3(0.7*s, 0, 0);
+
+    function createTubeMesh(points, radius, color, opacity = 0.8) {
+        if (points.length < 2) return null;
+        const curve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
+        const tubularSegments = Math.max(20, points.length * 2);
+        const geometry = new THREE.TubeGeometry(curve, tubularSegments, radius, 8, false);
+        const material = new THREE.MeshBasicMaterial({
+            color: color,
+            transparent: true,
+            opacity: opacity
+        });
+        return new THREE.Mesh(geometry, material);
+    }
+
+    function redrawTrace() {
+        if (tracePoints.length < 2) {
+            if (traceMesh) {
+                scene.remove(traceMesh);
+                traceMesh.geometry.dispose();
+                traceMesh = null;
+            }
+            return;
+        }
+        const mesh = createTubeMesh(tracePoints, thickness.trace, 0xffa500, 0.85);
+        if (traceMesh) {
+            scene.remove(traceMesh);
+            traceMesh.geometry.dispose();
+        }
+        traceMesh = mesh;
+        scene.add(traceMesh);
+    }
+
+    function pushTracePoint(point) {
+        tracePoints.push(point);
+        if (tracePoints.length > maxTracePoints) tracePoints.shift();
+        redrawTrace();
+    }
+
+    function clearTrace() {
+        tracePoints.length = 0;
+        redrawTrace();
+    }
+
+    function drawSlerpGeometry(quat1, quat2) {
+        if (axisMesh) { scene.remove(axisMesh); axisMesh.geometry.dispose(); }
+        if (fullCircleMesh) { scene.remove(fullCircleMesh); fullCircleMesh.geometry.dispose(); }
+
+        const qRel = quat1.clone().invert().multiply(quat2);
+        const axis = new THREE.Vector3(qRel.x, qRel.y, qRel.z).normalize().applyQuaternion(quat1);
+
+        const axisPoints = [axis.clone().multiplyScalar(-3), axis.clone().multiplyScalar(3)];
+        axisMesh = createTubeMesh(axisPoints, thickness.axis, 0x555555, 0.4);
+        scene.add(axisMesh);
+
+        const startPoint = headVector.clone().applyQuaternion(quat1);
+        const circlePoints = [];
+        for (let i = 0; i <= 100; i++) {
+            const theta = (i / 100) * Math.PI * 2;
+            const qTmp = new THREE.Quaternion().setFromAxisAngle(axis, theta);
+            circlePoints.push(startPoint.clone().applyQuaternion(qTmp));
+        }
+        fullCircleMesh = createTubeMesh(circlePoints, thickness.circle, 0x999999, 0.4);
+        scene.add(fullCircleMesh);
+    }
+
+    function update(source = 'input') {
+        if (source === 'slerp') {
+            const euler = new THREE.Euler().setFromQuaternion(planeGroup.quaternion, 'ZYX');
+            s_roll.value = THREE.MathUtils.radToDeg(euler.x).toFixed(1);
+            s_pitch.value = THREE.MathUtils.radToDeg(euler.y).toFixed(1);
+            s_yaw.value = THREE.MathUtils.radToDeg(euler.z).toFixed(1);
+        }
+        const r = parseFloat(s_roll.value) || 0, p = parseFloat(s_pitch.value) || 0, y = parseFloat(s_yaw.value) || 0;
+        if (!isSlerping) planeGroup.rotation.set(THREE.MathUtils.degToRad(r), THREE.MathUtils.degToRad(p), THREE.MathUtils.degToRad(y), 'ZYX');
+        
+        const q = planeGroup.quaternion;
+        tx_qw.value = q.w.toFixed(3); tx_qx.value = q.x.toFixed(3); tx_qy.value = q.y.toFixed(3); tx_qz.value = q.z.toFixed(3);
+        
+        const rr = THREE.MathUtils.degToRad(r), pr = THREE.MathUtils.degToRad(p), yr = THREE.MathUtils.degToRad(y);
+        dotR.position.set(0, -radius * Math.sin(rr), radius * Math.cos(rr));
+        dotG.position.set(radius * Math.cos(pr), 0, -radius * Math.sin(pr));
+        dotB.position.set(radius * Math.cos(yr), radius * Math.sin(yr), 0);
+
+        if (!isTextInputMode) {
+            tx_roll.value = r.toFixed(1); tx_pitch.value = p.toFixed(1); tx_yaw.value = y.toFixed(1);
+        }
+    }
+
+    const onSliderInput = () => { isTextInputMode = false; isSlerping = false; update(); };
+    const onTextChange = (e) => {
+        isTextInputMode = true;
+        let val = Math.max(-180, Math.min(180, parseFloat(e.target.value) || 0));
+        if (e.target.id === 'tx_roll') s_roll.value = val;
+        else if (e.target.id === 'tx_pitch') s_pitch.value = val;
+        else if (e.target.id === 'tx_yaw') s_yaw.value = val;
+        update();
+        e.target.value = val.toFixed(1);
+        isTextInputMode = false;
+    };
+
+    s_roll.addEventListener('input', onSliderInput); s_pitch.addEventListener('input', onSliderInput); s_yaw.addEventListener('input', onSliderInput);
+    tx_roll.addEventListener('change', onTextChange); tx_pitch.addEventListener('change', onTextChange); tx_yaw.addEventListener('change', onTextChange);
+
+    document.getElementById('btn_set_q1').onclick = () => { q1.copy(planeGroup.quaternion); showGhost(q1, 0xff0000); clearTrace(); };
+    document.getElementById('btn_set_q2').onclick = () => { q2.copy(planeGroup.quaternion); showGhost(q2, 0x0000ff); clearTrace(); };
+    document.getElementById('btn_play_slerp').onclick = () => {
+        if (q1.angleTo(q2) < 0.01) return alert("Postures are too similar!");
+        clearTrace();
+        drawSlerpGeometry(q1, q2);
+        pushTracePoint(headVector.clone().applyQuaternion(q1));
+        slerpAlpha = 0; isSlerping = true;
+    };
+
+    document.getElementById('btn_reset').onclick = () => {
+        isSlerping = false;
+        slerpAlpha = 0;
+
+        s_roll.value = 0;
+        s_pitch.value = 0;
+        s_yaw.value = 0;
+
+        planeGroup.rotation.set(0, 0, 0, 'ZYX');
+        planeGroup.quaternion.set(0, 0, 0, 1);
+
+        camera.position.set(5, -5, 4);
+        controls.target.set(0, 0, 0);
+        controls.update();
+
+        clearTrace();
+        if (axisMesh) { 
+            scene.remove(axisMesh); 
+            axisMesh.geometry.dispose(); 
+            axisMesh = null; 
+        }
+        if (fullCircleMesh) { 
+            scene.remove(fullCircleMesh); 
+            fullCircleMesh.geometry.dispose(); 
+            fullCircleMesh = null; 
+        }
+
+        scene.children.forEach((child) => {
+            if (child.isGhost) scene.remove(child);
+        });
+
+        update();
+    };
+
+    function showGhost(quat, color) {
+        const ghost = planeGroup.clone();
+        ghost.isGhost = true;
+        ghost.traverse(child => {
+            if (child.isMesh) {
+                child.material = child.material.clone();
+                child.material.transparent = true; child.material.opacity = 0.2; child.material.color.set(color);
+            }
+        });
+        ghost.quaternion.copy(quat);
+        scene.add(ghost);
+        setTimeout(() => scene.remove(ghost), 1500);
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        if (controls) controls.update();
+        if (isSlerping) {
+            slerpAlpha = Math.min(1.0, slerpAlpha + 0.01);
+            planeGroup.quaternion.slerpQuaternions(q1, q2, slerpAlpha);
+            pushTracePoint(headVector.clone().applyQuaternion(planeGroup.quaternion));
+            update('slerp');
+            if (slerpAlpha >= 1.0) isSlerping = false;
+        }
+        renderer.render(scene, camera);
+    }
+
+    update();
+    animate();
+</script>
+</body>
+</html>

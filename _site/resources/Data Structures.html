@@ -1,0 +1,2602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASTERHU</title>
+    
+    <link rel="stylesheet" href="/robotics.github.io/assets/css/main.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+
+    
+</head>
+
+<body>
+    <header class="site-header">
+        <nav class="nav-container">
+    <a href="/robotics.github.io/" class="nav-logo">
+        MASTERHU<span class="highlight">.</span>
+    </a>
+    
+    <ul class="nav-links">
+        <li><a href="/robotics.github.io/">HOME</a></li>
+        <li><a href="/robotics.github.io/projects">PROJECTS</a></li>
+        <li><a href="/robotics.github.io/resources">RESOURCES</a></li>
+        <li><a href="/robotics.github.io/contact">CONTACT</a></li>
+    </ul>
+</nav>
+
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <h1 id="data-structures-and-algorithms">Data Structures and Algorithms</h1>
+
+<h2 id="1-introduction">1. Introduction</h2>
+
+<p>The goal of Data Structure is to teach you to <strong>solve</strong> computation problems, and to <strong>communicate</strong> that your solutions are <strong>correct</strong> and <strong>efficient</strong>.</p>
+
+<ul>
+  <li><strong>Problem</strong>: Binary relation from <strong>problem inputs</strong> to correct <strong>outputs</strong></li>
+  <li><strong>Algorithm</strong>: Procedure mapping each input to a <strong>single</strong> output (deterministic)</li>
+  <li><strong>Correctness</strong>: Must use <strong>induction</strong></li>
+  <li><strong>Efficiency</strong>: ignore constant factors and low order terms
+    <ul>
+      <li>Upper bounds ($O$), lower bounds ($\Omega$), tight bounds ($\Theta$)</li>
+    </ul>
+  </li>
+  <li><strong>Model of Computation</strong>: Specification for what operations on the machine can be performed in $O(1)$ time
+    <ul>
+      <li><strong>Machine word</strong>: block of $\omega$ bits ($\omega$ is word size of a $\omega$-bit Word-RAM)</li>
+    </ul>
+  </li>
+  <li><strong>Data Structure</strong>: a way to store non-constant data, that supports a set of operations
+    <ul>
+      <li>A collection of operations is called an <strong>interface</strong>
+        <ul>
+          <li><strong>Sequence</strong>: Extrinsic order to items (first, last, $n$th)</li>
+          <li><strong>Set</strong>: Intrinsic order to items (queries based on item keys)</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="2-data-structures-and-sorting">2. Data Structures and Sorting</h2>
+
+<h3 id="20-data-structure-interfaces">2.0 Data Structure Interfaces</h3>
+
+<ul>
+  <li><strong>Interface</strong> (API) is a <strong>specification</strong>: what operations are supported (the problem!)</li>
+  <li><strong>Data Structur</strong>e is a <strong>representation</strong>: how operations are supported (the solution!)</li>
+</ul>
+
+<h3 id="21-sequence-interface">2.1 Sequence Interface</h3>
+
+<ul>
+  <li>Maintain a sequence of items (order is <strong>extrinsic</strong>)</li>
+  <li>(use n to denote the number of items stored in the data structure)</li>
+  <li>Special case interfaces:
+    <ul>
+      <li><strong>stack</strong> $\mathrm{insert_last(x)}$ and $\mathrm{delete_last()}$</li>
+      <li><strong>queue</strong> $\mathrm{insert_last(x)}$ and $\mathrm{delete_first()}$</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="211-array-sequence">2.1.1 Array Sequence</h4>
+
+<ul>
+  <li>Array is great for static operations! $\mathrm{get_at(i)}$ and $\mathrm{set_at(i, x)}$ in  $\Theta(1)$  time!</li>
+  <li>(For consistency, we maintain the invariant that array is full)</li>
+  <li>Then inserting and removing items requires:
+    <ul>
+      <li>reallocating the array</li>
+      <li>shifting all items after the modified item</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="212-linked-list-sequece">2.1.2 Linked List Sequece</h4>
+
+<ul>
+  <li>Pointer data structure</li>
+  <li>Each item stored in a <strong>node</strong> which contains a pointer to the next node in sequence</li>
+  <li>Each node has two fields: $\mathrm{node.item}$ and $\mathrm{node.next}$</li>
+  <li>Can manipulate nodes simply by relinking pointers!</li>
+  <li>Maintain pointers to the first node in sequence (called the head)</li>
+  <li>Can now insert and delete from the front in $\Theta(1)$ time!</li>
+  <li>Inserting/deleting efficiently from back is also possible; but need store a pointer to the last, which is called data structure augmentation</li>
+</ul>
+
+<h4 id="213-dynamic-array-sequence">2.1.3 Dynamic Array Sequence</h4>
+
+<ul>
+  <li>Make an array efficient for last dynamic operations (Python “list” is a dynamic array)</li>
+  <li><strong>Idea!</strong> Allocate extra space so reallocation does not occur with every dynamic operation</li>
+  <li><strong>Fill ratio</strong>: $0 \le r \le 1$ the ratio of items to space</li>
+  <li>Whenever array is full ($r = 1$), allocate $\Theta(n)$ extra space at end to fill ratio $r_i$ (e.g., 1/2) will have to insert $\Theta(n)$ items before the next reallocation</li>
+  <li>A single operation can take $\Theta(n)$ time for reallocation, However, any sequence of $\Theta(n)$ operations takes $\Theta(n)$ time, So each operation takes$\Theta(1)$ time “on average”</li>
+</ul>
+
+<h5 id="amortized-analysis">Amortized Analysis</h5>
+
+<ul>
+  <li>Data structure analysis technique to distribute cost over many operations</li>
+  <li>Operation has <strong>amortized cost</strong> $T(n)$ if $k$ operations cost at most $\le kT(n)$</li>
+  <li>“$T(n)$ amortized” roughly means $T(n)$ “on average” over many operations</li>
+  <li>Inserting into a dynamic array takes $\Theta(1)$ <strong>amortized</strong> time
+    <ul>
+      <li>$n$ $\mathrm{inset_last()}$, resize at $n = 1,2,4\dots,\lg n$</li>
+      <li>$\mathrm{resize\ cost} = \Theta(1+2+4\cdots+\lg n) = \Theta(\sum_{i=1}^{\lg n}2^i)=\Theta(2^{\lg n})=\Theta(n)$</li>
+      <li>So $\mathrm{amortized_time} = \Theta(n/n) = \Theta(1) $</li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="dynamic-array-deletion">Dynamic Array Deletion</h5>
+
+<ul>
+  <li>Delete from back? $\Theta(n)$ time without effort, yay!</li>
+  <li>However, can be very wasteful in space. Want size of data structure to stay $\Theta(n)$</li>
+  <li><strong>Attempt</strong>: if very empty, resize to r = 1. Alternating insertion and deletion could be bad…</li>
+  <li><strong>Idea!</strong> When $r &lt; r_d$, resize array to ratio $r_i$ where $r_d &lt; r_i$ (e.g., $r_d = 1/4, r_i = 1/2$)</li>
+  <li>Then $\Theta(n)$ cheap operations must be made before next expensive resize</li>
+  <li>Can limit extra space usage to $(1 + \epsilon)n$ for any $\epsilon &gt; 0$ (set $r_d =\frac{1}{1+\epsilon}$ , $r_i =\frac{r_d+1}{2}$ )</li>
+  <li>Dynamic arrays only support dynamic <strong>last</strong> operations in $\Theta(n)$ time</li>
+  <li><strong>Python List $\mathrm{append}$ and $\mathrm{pop}$ are amortized $O(1)$ time, other operations can be $ O(n)$</strong></li>
+</ul>
+
+<p><img src="/robotics.github.io/assets/images/Data_structures_1.png" alt="Data_structures" /></p>
+
+<h3 id="22-set-interface">2.2 Set Interface</h3>
+
+<ul>
+  <li>Sequence about <strong>extrinsic</strong> order, set is about <strong>intrinsic</strong> order</li>
+  <li>Maintain a set of items having <strong>unique keys</strong> (e.g., item x has key x.key)</li>
+  <li>Often we let key of an item be the item itself, but may want to store more info than just key</li>
+  <li>Special case interfaces</li>
+  <li><strong>dictionary</strong> set without the Order operations</li>
+  <li>Storing items in an array in arbitrary order can implement a (not so efficient) set</li>
+  <li>Stored items sorted increasing by key allows:
+    <ul>
+      <li>faster find min/max (at first and last index of array)</li>
+      <li>faster finds via binary search: $O(\log n)$</li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="comparison-model">Comparison Model</h5>
+
+<ul>
+  <li>In this model, assume algorithm can only differentiate items via comparison</li>
+  <li><strong>Comparable items</strong>: black boxes only supporting comparisons between pairs</li>
+  <li>Comparisons are $&lt;, \le, &gt;, \ge, =, \ne$ , outputs are binary: True or False</li>
+  <li><strong>Goal</strong>: Store a set of $n$ comparable items, support $\mathrm{find(k)}$ operation</li>
+  <li>Running time is <strong>lower bounded</strong> by # comparisons performed, so count comparisons!</li>
+</ul>
+
+<h5 id="decision-tree">Decision Tree</h5>
+
+<ul>
+  <li>Any algorithm can be viewed as a decision tree of operations performed</li>
+  <li>An internal node represents a <strong>binary comparison</strong>, branching either True or False</li>
+  <li>For a comparison algorithm, the decision tree is binary. A leaf represents algorithm termination, resulting in an algorithm output. A root-to-leaf path represents an execution of the algorithm on some input</li>
+  <li>Need at least one leaf for each <strong>algorithm output</strong>, so search requires $\ge n + 1$ leaves (the 1 refers to $\mathrm{None}$)</li>
+</ul>
+
+<h4 id="221-sorting">2.2.1 Sorting</h4>
+
+<ul>
+  <li>Given a sorted array, we can leverage binary search to make an efficient set data sructure</li>
+  <li><strong>Input</strong>: (static) array $A$ of n numbers</li>
+  <li><strong>Output</strong>: (static) array $B$ which is a sorted permutation of $A$
+    <ul>
+      <li><strong>Permutation</strong>: array with same elements in a different order</li>
+      <li><strong>Sorted</strong>: $B[i − 1] \le B[i]$ for all $i \in {1, . . . , n}$</li>
+    </ul>
+  </li>
+  <li>A sort is <strong>destructive</strong> if it overwrites $A$ (instead of making a new array $B$ that is a sorted version of $A$)</li>
+  <li>A sort is <strong>in place</strong> if it uses $O(1)$ extra space (implies destructive: in place $\subseteq$ destructive)</li>
+</ul>
+
+<h5 id="permutation-sort">Permutation Sort</h5>
+
+<ul>
+  <li>There are $n!$ permutations of $A$, at least one of which is sorted</li>
+  <li>For each permutation, check whether sorted in $\Theta(n)$</li>
+  <li>Analysis:
+    <ul>
+      <li>try all possibilities</li>
+      <li>Runnning time: $\Omega(n! \cdot n)$ which is <strong>exponential</strong></li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="select-sort">Select Sort</h5>
+
+<ul>
+  <li>Find a largest number in prefix $A[:i + 1]$ and swap it to $A[i]$</li>
+  <li>Recursively sort prefix $A[:i]$</li>
+  <li>$\mathrm{prefix_max}$ analysis:
+    <ul>
+      <li>Base case: for $i = 0$, array has one element, so index of max is $i$</li>
+      <li>Induction: assume correct for $i$, maximum is either the maximum of $A[:i]$ or $A[i]$, returns correct index in either case</li>
+      <li>$S(1)=\Theta(1),\ S(n)= S(n-1)+\Theta(1) \implies S(n) = \Theta(n)$</li>
+    </ul>
+  </li>
+  <li>$\mathrm{selection_sort}$ analysis:
+    <ul>
+      <li>Base case: for $i = 0$, array has one element so is sorted</li>
+      <li>Induction: assume correct for $i$, last number of a sorted output is a largest number of the array, and the algorithm puts one there; then $A[:i]$ is sorted by induction</li>
+      <li>$T(1)=\Theta(1),\ T(n)= T(n-1)+S(n) = T(n-1)+\Theta(n) \implies T(n) = \Theta(n^2)$</li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="insertion-sort">Insertion Sort</h5>
+
+<ul>
+  <li>Recursively sort prefix $A[:i]$</li>
+  <li>Sort prefix $A[:i + 1]$ assuming that prefix $A[:i]$ is sorted by repeated swaps</li>
+  <li>$\mathrm{insert_last}$ analysis:
+    <ul>
+      <li>Base case: for $i = 0$, array has one element so is sorted</li>
+      <li>Induction: assume correct for $i$, if $A[i] \ge A[i - 1]$, array is sorted; otherwise, swapping last two elements allows us to sort $A[:i]$ by induction</li>
+      <li>$S(1)=\Theta(1),\ S(n)= S(n-1)+\Theta(1) \implies S(n) = \Theta(n)$</li>
+    </ul>
+  </li>
+  <li>$\mathrm{insertion_sort}$ analysis:
+    <ul>
+      <li>Base case: for $i = 0$, array has one element so is sorted</li>
+      <li>Induction: assume correct for $i$, algorithm sorts $A[:i]$ by induction, and then $\mathrm{insert_last}$ correctly sorts the rest as proved above</li>
+      <li>$T(1)=\Theta(1),\ T(n)= T(n-1)+S(n) = T(n-1)+\Theta(n) \implies T(n) = \Theta(n^2)$</li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="merge-sort">Merge Sort</h5>
+
+<ul>
+  <li>Recursively sort first half and second half (may assume power of two)</li>
+  <li>Merge sorted halves into one sorted list (two finger algorithm)</li>
+  <li>$\mathrm{merge}$ analysis:
+    <ul>
+      <li>Base case: for $n = 0$, arrays are empty, so vacuously correct</li>
+      <li>Induction: assume correct for $n$, item in $A[r]$ must be a largest number from remaining prefixes of $L$ and $R$, and since they are sorted, taking largest of last items suffices; remainder is merged by induction</li>
+      <li>$S(1)=\Theta(1),\ S(n)= S(n-1)+\Theta(1) \implies S(n) = \Theta(n)$</li>
+    </ul>
+  </li>
+  <li>$\mathrm{merge_sort}$ analysis:
+    <ul>
+      <li>Base case: for $n = 1$, array has one element so is sorted</li>
+      <li>Induction: assume correct for $k &lt; n$, algorithm sorts smaller halves by induction, and then $\mathrm{merge}$ merges into a sorted array as proved above.</li>
+      <li>$T(1)=\Theta(1),\ T(n)= 2T(n/2)+\Theta(n) \implies T(n) = \Theta(n\log n)$</li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="linear-sorting">Linear Sorting</h5>
+
+<h6 id="comparison-sort-lower-bound">Comparison Sort Lower Bound</h6>
+
+<ul>
+  <li>To sort array of $n$ elements, # outputs is $n!$ permutations</li>
+  <li>Thus height lower bounded by $\log(n!) \ge \log((n/2)^{n/2}) = \Omega(n \log n)$</li>
+  <li>So merge sort is optinal in comparison model</li>
+</ul>
+
+<h6 id="direct-access-array-sort">Direct Access Array Sort</h6>
+
+<ul>
+  <li>Suppose all keys are <strong>unique</strong> non-negative integers in range ${0, . . . , u − 1}$, so $n \le u$</li>
+  <li>Insert each item into a direct access array with size $u$ in $\Theta(n)$</li>
+  <li>Return items in order they appear in direct access array in $\Theta(n)$</li>
+  <li>Running time is $\Theta(n)$, which is $\Theta(n)$ if $u = \Theta(n)$</li>
+  <li>What if keys are in larger range, like $u = \Omega(n^2) &lt; n^2$?</li>
+  <li><strong>Idea!</strong> Represent each key $k$ by tuple $(a, b)$ where $k = an + b$ and $0 \le b &lt; n$</li>
+  <li>This is a built-in Python operation $(a, b) = \mathrm{divmod}(k, n)$</li>
+  <li><strong>Example</strong>: $[17, 3, 24, 22, 12] \implies [(3,2), (0,3), (4,4), (4,2), (2,2)] \implies [32, 03, 44, 42, 22]_{(n=5)}$</li>
+  <li>How can we sort tuples?</li>
+</ul>
+
+<h6 id="tuple-sort">Tuple Sort</h6>
+
+<ul>
+  <li>Item keys are tuples of equal length, i.e. item $x.key = (x.k_1, x.k_2, x.k_2, \dots)$</li>
+  <li>Want to sort on all entries lexicographically, so first key $k_1$ is most significant</li>
+  <li>How to sort? <strong>Idea!</strong> Use other <strong>auxiliary sorting algorithms</strong> to separately sort each key (Like sorting rows in a spreadsheet by multiple columns)</li>
+  <li>What order to sort them in? Least significant to most significant!</li>
+  <li>Exercise: $[32, 03, 44, 42, 22] \implies [42, 22, 32, 03, 44] \implies [03, 22, 32, 42, 44]_{(n=5)}$</li>
+  <li><strong>Idea!</strong> Use tuple sort with <strong>auxiliary direct access array sort</strong> to sort tuples $(a, b)$</li>
+  <li><strong>Problem!</strong> Many integers could have the same $a$ or $b$ value, even if input keys distinct</li>
+  <li>Need sort allowing <strong>repeated keys</strong> which preserves input order</li>
+  <li>Want sort to be <strong>stable</strong>: repeated keys appear in output in same order as input</li>
+  <li>Direct access array sort cannot even sort arrays having repeated keys!</li>
+  <li>Can we modify direct access array sort to admit multiple keys in a way that is stable?</li>
+</ul>
+
+<h6 id="counting-sort">Counting Sort</h6>
+
+<ul>
+  <li>Instead of storing a single item at each array index, store a chain, just like hashing!</li>
+  <li>For stability, chain data structure should remember the order in which items were added</li>
+  <li>Use a <strong>sequence</strong> data structure which maintains insertion order</li>
+  <li>To insert item $x$, $\mathrm{insert_last}$ to end of the chain at index $x.key$</li>
+  <li>Then to sort, read through all chains in sequence order, returning items one by one</li>
+</ul>
+
+<h6 id="radix-sort">Radix Sort</h6>
+
+<ul>
+  <li><strong>Idea!</strong> If $u &lt; n^2$, use tuple sort with <strong>auxiliary counting sort</strong> to sort tuples (a, b)</li>
+  <li>Sort least significant key $b$, then most significant key $a$</li>
+  <li>Stability ensures previous sorts stay sorted</li>
+  <li>Running time for this algorithm is $O(2n) = O(n)$. Yay!</li>
+  <li>If every key $&lt; n^c$ for some positive $c = \log_n(u)$, every key has at most $c$ digits base $n$</li>
+  <li>A $c$-digit number can be written as a $c$-element tuple in $O(c)$ time</li>
+  <li>We sort each of the $c$ base-$n$ digits in $O(n)$ time</li>
+  <li>So tuple sort with <strong>auxiliary counting sort</strong> runs in $O(cn)$ time in total</li>
+  <li>If c is constant, so each key is $\le n^c$ , this sort is linear $O(n)$!</li>
+</ul>
+
+<p><img src="/robotics.github.io/assets/images/Data_structures_3.png" alt="Data_structures_3" /></p>
+
+<h4 id="222-finding-hashing">2.2.2 Finding (Hashing)</h4>
+
+<ul>
+  <li><strong>Idea!</strong> Want faster search and dynamic operations. Can we $\mathrm{find(k)}$ faster than $\Theta(\log n)$</li>
+</ul>
+
+<h5 id="comparison-search-lower-bound">Comparison Search Lower Bound</h5>
+
+<ul>
+  <li>What is worst-case running time of a comparison search algorithm?</li>
+  <li>running time $\ge$ # comparisons $\ge$ max length of any root-to-leaf path $\ge$ height of tree</li>
+  <li>Minimum height when binary tree is complete (all rows full except last)</li>
+  <li>Height $\ge [\lg(n + 1)] − 1 = Ω(\log n)$, so running time of any comparison sort is $\Omega(\log n)$</li>
+  <li>Sorted arrays achieve this bound!</li>
+  <li>More generally, height of tree with $\Theta(n)$ leaves and max branching factor b is $\Omega(\log_b n)$</li>
+  <li>To get faster, need an operation that allows super-constant $\omega(1)$ branching factor</li>
+</ul>
+
+<h5 id="direct-access-array">Direct Access Array</h5>
+
+<ul>
+  <li>Exploit Word-RAM $O(1$ time random access indexing! Linear branching factor!</li>
+  <li><strong>Idea!</strong> Give item <strong>unique</strong> integer key k in ${0, \dots , u − 1}$, store item in an array at index $k$</li>
+  <li>Associate a meaning with each index of array</li>
+  <li>If keys fit in a machine word, i.e. $u ≤ 2^w$, worst-case $O(1)$ find/dynamic operations! Yay!</li>
+  <li>But space O(u), so really bad if $n \ll u $. For example, if keys are ten-letter names, for one bit per name, requires 2610 $\approx$ 17.6 TB space</li>
+</ul>
+
+<h5 id="hasing">Hasing</h5>
+
+<ul>
+  <li><strong>Idea!</strong> If $n \ll u $, map keys to a smaller range $m = \Theta(n)$ and use smaller direct access array</li>
+  <li><strong>Hash function</strong>: $h(k):{0,\dots,u-1}\rightarrow{{0,\dots,m-1}}$ (also hash map)</li>
+  <li>Direct access array called <strong>hash table</strong>, $h(k)$ called the <strong>hash</strong> of key $k$</li>
+  <li>If $m \ll u$, no hash function is injective by pigeonhole principle</li>
+  <li>Always exists keys $a, b$ such that $h(a) = h(b)$ → Collision!</li>
+  <li>Can’t store both items at same index, so where to store? Either:
+    <ul>
+      <li>store somewhere else in the array (open addressing)
+        <ul>
+          <li>complicated analysis, but common and practical</li>
+        </ul>
+      </li>
+      <li>tore in another data structure supporting dynamic set interface (chaining)</li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="chaining">Chaining</h5>
+
+<ul>
+  <li><strong>Idea!</strong> Store collisions in another data structure (a chain)</li>
+  <li>If keys roughly evenly distributed over indices, chain size is $n/m=n/\Omega(n)=O(1)$</li>
+  <li>If chain has $O(1)$ size, all operations take $O(1)$ time! Yay!</li>
+  <li>If not, many items may map to same location, e.g. $h(k) =$ constant, chain size is $\Theta(n)$</li>
+  <li>Need good hash function! So what’s a good hash function!</li>
+</ul>
+
+<h5 id="hash-functions">Hash Functions</h5>
+
+<h6 id="divisionbad-----hkk-mod-m"><strong>Division</strong>(bad):     $h(k)=(k \mod m)$</h6>
+
+<ul>
+  <li>Heuristic, good when keys are uniformly distributed!</li>
+  <li>$m$ should avoid symmetries of the stored keys</li>
+  <li>Large primes far from powers of 2 and 10 can be reasonable</li>
+  <li>Python uses a version of this with some additional mixing</li>
+  <li>If $u \gg n$, every hash function will have some input set that will a create $ O(n)$ size chain. Attackers can use this to spam the hash table with collisions, tanking the speed to $\Theta(n)$ and crashing the system, which is called <strong>Hash Denial of Service (DoS)</strong> attack.</li>
+  <li><strong>Idea!</strong> Don’t use a fixed hash function! Choose one randomly (but carefully)!</li>
+</ul>
+
+<h6 id="universal-good-theoretically----h_abkakbmod-pmod-m">Universal (good, theoretically):    $h_{ab}(k)=(((ak+b)\mod p)\mod m)$</h6>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Hash Family $\mathcal H(p,m)={h_{ab}</td>
+          <td>a,b\in{0,\dots,p-1\ \mathrm{and} \ a \ne 0}$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>Parameterized by a fixded prime $p &gt; u$, with $a$ and $b$ chosen from range ${0,\dots,p-1}$</p>
+  </li>
+  <li>
+    <p>$\mathcal H$ is a <strong>Universal</strong> family: $\underset{h\in\mathcal H}\Pr{h(k_i) = h(k_j)} ≤ 1/m \ \ \forall k_i \ne kj \in { 0, \dots , u − 1 }$</p>
+  </li>
+  <li>
+    <p>Why is universality useful? Implies short chain lengths! (in expectation)</p>
+  </li>
+  <li>
+    <p>$X_{ij}$ indicator random variable over $h \in \mathcal H: X_{ij} = 1 \ \ \mathrm{if} \  h(k_i) = h(k_j), \ X_{ij} = 0$ otherwise</p>
+  </li>
+  <li>
+    <p>Size of chain at index $h(k_i)$ is random variable $X_i = \sum_j X_{ij}$
+\(\begin{aligned}
+\underset{h\in\mathcal H} {\mathbb E}\{X_i\}=\underset{h\in\mathcal H} {\mathbb E} \left\{ \sum_j X_{ij} \right\} = \sum_j \underset{h\in\mathcal H} {\mathbb E}\{X_{ij}\} &amp;= 1+\sum_{j \ne i} \underset{h\in\mathcal H} {\mathbb E}\{X_{ij}\} \\
+&amp;= 1+\sum_{j \ne i}(1)\underset{h\in\mathcal H}\Pr\{h(k_i)=h(k_j)\} +(0)\underset{h\in\mathcal H}\Pr\{h(k_i) \ne h(k_j)\} \\
+&amp;= 1+\sum_{j \ne i} 1/m = 1+(n-1)/m
+\end{aligned}\)</p>
+  </li>
+  <li>Since $m=\Omega(n)$, load factor $\alpha=n/m=O(1)$, so $O(1)$ <strong>in expectation!</strong></li>
+</ul>
+
+<h5 id="dynamic">Dynamic</h5>
+
+<ul>
+  <li>If $n/m$ far from 1, rebuild with new randomly chosen hash function for new size $m$</li>
+  <li>Same analysis as dynamic arrays, cost can be <strong>amortized</strong> over many dynamic operations</li>
+  <li>So a hash table can implement dynamic set operations in expected amortized $O(1)$ time!</li>
+</ul>
+
+<p><img src="/robotics.github.io/assets/images/Data_structures_2.png" alt="Data_structures_2" /></p>
+
+<h3 id="23-binary-tree">2.3 Binary Tree</h3>
+
+<ul>
+  <li>Pointer-based data structures (like Linked List) can achieve <strong>worst-case</strong> performance</li>
+  <li>Binary tree is pointer-based data structure with three pointers per node</li>
+  <li>Node representation: $\mathrm{node.{item, parent, left, right}}$</li>
+  <li><strong>Examples:<img src="/robotics.github.io/assets/images/BinaryTree_1.png" alt="截屏2026-03-20 20.10.54" /></strong></li>
+</ul>
+
+<h4 id="terminology">Terminology</h4>
+
+<ul>
+  <li>The <strong>root</strong> of a tree has no parent (Ex: <a>)</a></li>
+  <li>A <strong>leaf</strong> of a tree has no children (Ex: <C>, <E>, and <F>)</F></E></C></li>
+  <li>Define <strong>depth</strong>(<a>) of node <a> in a tree rooted at <R> to be length of path from <X> to <R></R></X></R></a></a></li>
+  <li><strong>Idea:</strong> Design operations to run in $O(h)$ time for root height $h$, and maintain $h = O(\log n)$</li>
+  <li>A binary tree has an inherent order: its <strong>traversal order</strong>
+    <ul>
+      <li>every node in node <X>’s left subtree is before <X></X></X></li>
+      <li>every node in node <X>’s right subtree is after <X></X></X></li>
+    </ul>
+  </li>
+  <li>List nodes in traversal order via a recursive algorithm starting at root:
+    <ul>
+      <li>Recursively list left subtree, list self, then recursively list right subtree</li>
+      <li>Runs in $O(n)$ time, since $O(1)$ work is done to list each node</li>
+      <li>Example: Traversal order is (<F>, <D>, <b>, <E>, <a>, <C>)</C></a></E></b></D></F></li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="tree-navigation">Tree Navigation</h4>
+
+<ul>
+  <li><strong>Find first</strong> node in the traversal order of node <X>’s subtree (last is symmetric)
+</X>    <ul>
+      <li>If <X> has left child, recursively return the first node in the left subtree</X></li>
+      <li>Otherwise, <X> is the first node, so return it</X></li>
+      <li>Running time is $O(h)$ where $h$ is the height of the tree</li>
+      <li>Example: first node in <a>’s subtree is <F></F></a></li>
+    </ul>
+  </li>
+  <li><strong>Find successor</strong> of node  in the traversal order (predecessor is symmetric)
+    <ul>
+      <li>If <X> has right child, return first of (the most left one) right subtree</X></li>
+      <li>Otherwise, return lowest ancestor of <X> for which <X> is in its left subtree</X></X></li>
+      <li>Running time is $O(h)$ where $h$ is the height of the tree</li>
+      <li>Example: Successor of:  <b> is <E>, <E> is <a>, and <C> is None</C></a></E></E></b></li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="dynamic-operations">Dynamic Operations</h4>
+
+<ul>
+  <li>Change the tree by a single item (only add or remove leaves):
+    <ul>
+      <li>add a node after another in the traversal order (before is symmetric)</li>
+      <li>remove an item from the tree</li>
+    </ul>
+  </li>
+  <li><strong>Insert</strong> node <Y> after node <X> in the traversal order
+</X></Y>    <ul>
+      <li>If <X> has no right child, make <Y> the right child of <X></X></Y></X></li>
+      <li>Otherwise, make <Y> the left child of <X>’s successor (which cannot have a left child)</X></Y></li>
+      <li>Running time is $O(h)$ where h is the height of the tree</li>
+    </ul>
+  </li>
+  <li><strong>Delete</strong> the item in <X> from <X>'s subtree</X></X></li>
+  <li>If <X> is a leaf, detach from parent and return</X></li>
+  <li>Otherwise, <X> has a child
+</X>    <ul>
+      <li>If <X> has a left child, swap items with the predecessor <X> and recurse</X></X></li>
+      <li>Otherwise <X> has a right child, swap items with the successor of <X> and recurse</X></X></li>
+    </ul>
+  </li>
+  <li>Running time is $O(h)$ where h is the height of the tree</li>
+  <li>Example: Remove <a> (not a leaf, so first swap down to a leaf)<img src="/robotics.github.io/assets/images/BinaryTree_2.png" alt="截屏2026-03-20 20.59.16" /></a></li>
+</ul>
+
+<h4 id="application-set">Application: Set</h4>
+
+<ul>
+  <li><strong>Idea!</strong> Set Binary Tree (a.k.a. <strong>Binary Search Tree / BST</strong>)</li>
+  <li>Traversal order is sorted order increasing by key
+    <ul>
+      <li>Equivalent to <strong>BST Property</strong>: for every node, every key in left subtree $\le$ node’s key $\le$ every key in right subtree</li>
+    </ul>
+  </li>
+  <li>Then can find the node with key $k$ in node <X>’s subtree in $O(h)$ time like binary search:
+</X>    <ul>
+      <li>If $k$ is smaller than the key at <X> , recurse in left subtree (or return $\mathrm{None}$)</X></li>
+      <li>If $k$ is larger than the key at <X> , recurse in right subtree (or return $\mathrm{None}$)</X></li>
+      <li>Otherwise, return the item stored at <X></X></li>
+    </ul>
+  </li>
+  <li>Other Set operations follow a similar pattern</li>
+</ul>
+
+<h4 id="application-sequence">Application: Sequence</h4>
+
+<ul>
+  <li><strong>Idea!</strong> <strong>Sequence Binary Tree</strong>: Traversal order is sequence order</li>
+  <li>How do we find $i^{\mathrm{th}}$ node in traversal order of a subtree? Call this operation $\mathrm{subtree_at(i)}$</li>
+  <li>Could just iterate through entire traversal order, but that’s bad, $O(n)$</li>
+  <li>However, if we could compute a subtree’s <strong>size</strong> in $O(1)$, then can solve in $O(h)$ time
+    <ul>
+      <li>How? Check the size $n_L$ of the left subtree and compare to $i$</li>
+      <li>If $i &lt; n_L$, recurse on the left subtree</li>
+      <li>If $i &gt; n_L$, recurse on the right subtree with $i’ = i- n_L - 1$</li>
+      <li>Otherwise, $i = n_L$, and you’ve reached the desired node!</li>
+    </ul>
+  </li>
+  <li>Maintain the size of each node’s subtree at the node via <strong>augmentation</strong>
+    <ul>
+      <li>Add $\mathrm{node.size}$ field to each $\mathrm{node}$</li>
+      <li>When adding new leaf, add $+1$ to $\mathrm{a.size}$ for all ancestors a in $O(h)$ time</li>
+      <li>When deleting a leaf, add $−1$ to $\mathrm{a.size}$ for all ancestors a in $O(h)$ time</li>
+    </ul>
+  </li>
+  <li>Sequence operations follow directly from a fast $\mathrm{subtree_at(i)}$ operation</li>
+  <li>Naively, $\mathrm{build(X)}$ takes $O(nh)$ time, but can be done in $O(n)$ time</li>
+</ul>
+
+<h4 id="height-balance">Height Balance</h4>
+
+<ul>
+  <li>How to maintain height $h=O(\log n)$ where $n$ is number of nodes in tree?</li>
+  <li>A binary tree that maintains $O(\log n)$ height under dynamic operations is called <strong>balanced</strong>
+    <ul>
+      <li>There are many balancing schemes (Red-Black Trees, Splay Trees, 2-3 Trees, . . . )</li>
+      <li>First proposed balancing scheme was the <strong>AVL Tree</strong> (Adelson-Velsky and Landis, 1962)</li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="rotations">Rotations</h5>
+
+<ul>
+  <li>Need to reduce height of tree without changing its traversal order, so that we represent the same sequence of items</li>
+  <li>How to change the structure of a tree, while preserving traversal order? <strong>Rotations!</strong> <img src="/robotics.github.io/assets/images/BinaryTree_3.png" alt="截屏2026-03-21 10.18.23" /></li>
+  <li>A rotation relinks $O(1)$ pointers to modify tree structure and maintains traversal order</li>
+</ul>
+
+<h5 id="rotations-suffice">Rotations Suffice</h5>
+
+<ul>
+  <li><strong>Claim</strong>: $O(n)$ rotation can transform a binary tree to any other with same traversal order</li>
+  <li><strong>Proof</strong>: Repeatedly perform last possible right rotation in traversal order; resulting tree is a canonical chain. Each rotation increases depth of the last node by $1$. Depth of last node in final chain is $n − 1$, so at most $n − 1$ rotations are performed. Reverse canonical rotations to reach target tree.</li>
+  <li>Can maintain height-balance by using $O(n)$ rotations to fully balance the tree, but slow</li>
+  <li>We will keep the tree balanced in $O(\log n)$ time per operation!</li>
+</ul>
+
+<h5 id="avl-trees-height-balance">AVL Trees: Height Balance</h5>
+
+<ul>
+  <li>AVL trees maintain <strong>height-balance</strong> (also called the <strong>AVL Property</strong>)
+    <ul>
+      <li>A node is <strong>height-balanced</strong> if heights of its left and right subtrees differ by at most $1$</li>
+      <li>Let <strong>skew</strong> of a node be the height of its right subtree minus that of its left subtree</li>
+      <li>Then a node is height-balanced if its skew is $−1$, $0$, or $1$</li>
+    </ul>
+  </li>
+  <li><strong>Claim</strong>: A binary tree with height-balanced nodes has height $h = O(\log n)$ (i.e., $n = 2^{\Omega(h)}$ )</li>
+  <li><strong>Proof</strong>: Suffices to show fewest nodes $F(h)$ in any height h tree is $F(h) = 2^{\Omega(h)}$
+    <ul>
+      <li>$F(0)=1, F(1)=2, F(h)=1+F(h-1)+F(h-2)\ge 2F(h-2)\implies F(h) \ge 2^{h/2}$</li>
+    </ul>
+  </li>
+  <li>Suppose adding or removing leaf from a height-balanced tree results in imbalance
+    <ul>
+      <li>Only subtrees of the leaf’s ancestors have changed in height or skew</li>
+      <li>Heights changed by only $\pm 1$, so skews still have magnitude $ \le 2$</li>
+      <li><strong>Idea</strong>: Fix height-balance of ancestors starting from leaf up to the root</li>
+      <li>Repeatedly rebalance lowest ancestor that is not height-balanced, wlog (<strong>W</strong>ithout <strong>L</strong>oss <strong>O</strong>f <strong>G</strong>enerality) assume skew $2$</li>
+    </ul>
+  </li>
+  <li><strong>Local Rebalance</strong>: Given binary tree node <b>:
+</b>    <ul>
+      <li>whose skew $2$ and</li>
+      <li>every other node in <b>’s subtree is height-balanced,</b></li>
+      <li>then <b>’s subtree can be made height-balanced via one or two rotations</b></li>
+      <li>(after which <b>’s height is the same or one less than before)</b></li>
+    </ul>
+  </li>
+  <li><strong>Proof</strong>:
+    <ul>
+      <li>Since skew of <b> is 2, <b>’s right child <F> exists</F></b></b></li>
+      <li><strong>Case 1</strong>: skew of <F> is $0$ or **Case 2**: skew of  is $1$
+</F>        <ul>
+          <li>perform a left rotation on <b><img src="/robotics.github.io/assets/images/BinaryTree_4.png" alt="截屏2026-03-21 10.58.47" /></b></li>
+        </ul>
+      </li>
+      <li><strong>Case 3</strong>: skew of <F> is −1, so the left child <D> of <F> exists
+</F></D></F>        <ul>
+          <li>Perform a right rotation on <F>, then a left rotation on <b>![截屏2026-03-21 11.01.39](/robotics.github.io/assets/images/BinaryTree_5.png)</b></F></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="computing-height">Computing Height</h5>
+
+<ul>
+  <li>How to tell whether node  is height-balanced? Compute heights of subtrees!</li>
+  <li><strong>Idea</strong>: Augment each node with the height of its subtree! (Save for later!)</li>
+  <li>Height of <X> can be computed in $O(1)$ time from the heights of its children:
+</X>    <ul>
+      <li>Look up the stored heights of left and right subtrees in $O(1)$ time</li>
+      <li>Add $1$ to the max of the two heights</li>
+    </ul>
+  </li>
+  <li>During dynamic operations, we must <strong>maintain</strong> our augmentation as the tree changes shape</li>
+  <li>Recompute subtree augmentations at every node whose subtree changes:
+    <ul>
+      <li>Update relinked nodes in a rotation operation in $O(1)$ time (ancestors don’t change)</li>
+      <li>Update all ancestors of an inserted or deleted node in $O(h)$ time by walking up the tree</li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="steps-to-augment-a-binary-tree">Steps to Augment a Binary Tree</h5>
+
+<ul>
+  <li>In general, to augment a binary tree with a <strong>subtree property</strong> $P$, you must:
+    <ul>
+      <li>State the subtree property $P($<X>$)$ you want to store at each node <X></X></X></li>
+      <li>Show how to compute $P($<X>$)$ from the augmentations of <X>’s children in $O(1)$ time</X></X></li>
+    </ul>
+  </li>
+  <li>Then stored property $P($<X>$)$ can be maintained without changing dynamic operation costs</X></li>
+</ul>
+
+<h3 id="24-binary-heaps">2.4 Binary Heaps</h3>
+
+<h4 id="241-priority-queue-interface">2.4.1 Priority Queue Interface</h4>
+
+<ul>
+  <li>Keep track of many items, quickly access/remove the most important
+    <ul>
+      <li>Example: process scheduling in operating system kernels</li>
+    </ul>
+  </li>
+  <li>Order items by key = priority so <strong>Set interface</strong> (not Sequence interface)</li>
+  <li>Optimized for a particular subset of Set operations:
+    <ul>
+      <li>$\mathrm{build(X)}$: build priority queue from iterable $\mathrm{X}$</li>
+      <li>$\mathrm{insert(X)}$: add item $\mathrm{x}$ to data structure</li>
+      <li>$\mathrm{delete_max(X)}$: remove and return stored item with largest key</li>
+      <li>$\mathrm{find_max(X)}$: return stored item with largest key</li>
+    </ul>
+  </li>
+  <li>(Usually optimized for max or min, not both)</li>
+  <li>Focus on $\mathrm{insert}$ and $\mathrm{delete_max}$ operations: $\mathrm{build}$ can repeatedly $\mathrm{insert}$; $\mathrm{find_max()}$ can $\mathrm{insert(delete_max())}$</li>
+</ul>
+
+<h4 id="242-priority-queue-sort">2.4.2 Priority Queue Sort</h4>
+
+<ul>
+  <li>Any priority queue data structure translates into a sorting algorithm:</li>
+  <li>$\mathrm{build(A)}$, e.g., $\mathrm{insert}$ items one by one in input order</li>
+  <li>Repeatedly $\mathrm{delete_min()}$ (or $\mathrm{delete_max()}$) to determine (reverse) sorted order</li>
+  <li>All the hard work happens inside the data structure</li>
+  <li>Running time is $T_{\mathrm{build}} + n \cdot T_{\mathrm{delete_max}} \le n \cdot T_{\mathrm{insert}} + n \cdot T_{\mathrm{delete_max}}$</li>
+</ul>
+
+<h5 id="priority-queue-set-avl-tree">Priority Queue: Set AVL Tree</h5>
+
+<ul>
+  <li>Set AVL trees supports $\mathrm{insert()}$, $\mathrm{find_min()}$, $\mathrm{find_max()}$, $\mathrm{delete_min()}$, $\mathrm{delete_max()}$ in $O(\log n)$ time per operation</li>
+  <li>So priority queue sort runs in $O(n \log n)$ time</li>
+  <li>Can speed up $\mathrm{find_min()}$ and $\mathrm{find_max()}$ to $O(1)$ time via subtree augmentation</li>
+  <li>But this data structure is complicated and resulting sort is not <strong>in-place</strong></li>
+</ul>
+
+<h5 id="priority-queue-array">Priority Queue: Array</h5>
+
+<ul>
+  <li>Store elements in an <strong>unordered</strong> dynamic array</li>
+  <li>$\mathrm{insert(x)}$: append $x$ to end in amortized $O(1)$ time</li>
+  <li>$\mathrm{delete_max()}$: find max in $O(n)$, swap max to the end and remove</li>
+  <li>$\mathrm{insert}$ is quick, but $\mathrm{delete_max}$ is slow</li>
+  <li>Priority queue sort is <strong>selection sort</strong>!</li>
+</ul>
+
+<h5 id="priority-queue-sorted-array">Priority Queue: Sorted Array</h5>
+
+<ul>
+  <li>Store elements in a <strong>sorted</strong> dynamic array</li>
+  <li>$\mathrm{insert(x)}$: append $x$ to end, swap down to sorted position in $O(n)$ time</li>
+  <li>$\mathrm{delete_max()}$: delete from end in $O(1)$ amortized</li>
+  <li>$\mathrm{delete_max}$is quick, but $\mathrm{insert}$ is slow</li>
+  <li>Priority queue sort is <strong>insertion sort</strong>!</li>
+</ul>
+
+<h5 id="array-as-a-complete-binary-tree">Array as a Complete Binary Tree</h5>
+
+<ul>
+  <li><strong>Idea:</strong> interpret an array as a complete binary tree, with maximum $2^i$ nodes at depth $i$ except at the largest depth, where all nodes are <strong>left-aligned</strong></li>
+  <li>Equivalently, complete tree is filled densely in reading order: root to leaves, left to right</li>
+  <li>Perspective: <strong>bijection</strong> between arrays and complete binary trees<img src="/robotics.github.io/assets/images/BinaryHeap.png" alt="截屏2026-03-22 21.14.15" /></li>
+  <li>Height of complete tree perspective of array of $n$ item is $[\lg n]$, so <strong>balanced</strong> binary tree</li>
+</ul>
+
+<h5 id="implicit-complete-tree">Implicit Complete Tree</h5>
+
+<ul>
+  <li>Complete binary tree structure can be <strong>implicit</strong> instead of storing pointers</li>
+  <li>Root is at index $0$</li>
+  <li>Compute neighbors by index arithmetic:
+    <ul>
+      <li>$\mathrm{left}(i) = 2i+1$</li>
+      <li>$\mathrm{right}(i) = 2i+2$</li>
+      <li>$\mathrm{parent}(i)=[(i-1)/2]$</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="243-binary-heaps">2.4.3 Binary Heaps</h4>
+
+<ul>
+  <li><strong>Idea</strong>: keep larger elements higher in tree, but only locally</li>
+  <li><strong>Max-Heap Property</strong> at node $ i: Q[i] \ge Q[j]$ for $j \in {\mathrm{left}(i),\mathrm{right}(i)}$</li>
+  <li><strong>Max-heap</strong> is an array satisfying max-heap property at all nodes</li>
+  <li><strong>Claim</strong>: In a max-heap, every node i satisfies $Q[i] \ge Q[j]$ for <strong>all nodes</strong> $j$ in $\mathrm{subtree}(i)$</li>
+  <li>In particular, max item is at root of max-heap</li>
+</ul>
+
+<h5 id="heap-insert">Heap Insert</h5>
+
+<ul>
+  <li>Append new item x to end of array in $O(1)$ amortized, making it next leaf $i$ in reading order</li>
+  <li>$\mathrm{max_heapify_up}(i)$: swap with parent until Max-Heap Property
+    <ul>
+      <li>Check whether $Q[\mathrm{parent}(i)] \ge Q[i]$ (part of Max-Heap Property at $\mathrm{parent}(i)$)</li>
+      <li>If not, swap items $Q[i]$ and $Q[\mathrm{parent}(i)]$, and recursively $\mathrm{max_heapify_up}(\mathrm{parent}(i))$</li>
+    </ul>
+  </li>
+  <li>Running time: height of tree, so $\Theta(\log n)$!</li>
+</ul>
+
+<h5 id="heap-delete-max">Heap Delete Max</h5>
+
+<ul>
+  <li>Can only easily remove last element from dynamic array, but max key is in root of tree</li>
+  <li>So swap item at root node $i = 0$ with last item at node $n − 1$ in heap array</li>
+  <li>$\mathrm{max_heapify_down}(i)$: swap with parent until Max-Heap Property
+    <ul>
+      <li>Check whether $Q[i] \ge Q[j]$ for $j \in {\mathrm{left}(i),\mathrm{right}(i)}$ (Max-Heap Property at $i$)</li>
+      <li>If not, swap items $Q[i]$ with $Q[j]$ for child $j \in {\mathrm{left}(i),\mathrm{right}(i)}$ with maximum key, and recursively $\mathrm{max_heapify_down}(j)$</li>
+    </ul>
+  </li>
+  <li>Running time: height of tree, so $\Theta(\log n)$!</li>
+</ul>
+
+<h4 id="heap-sort">Heap Sort</h4>
+
+<ul>
+  <li>Plugging max-heap into priority queue sort gives us a new sorting algorithm</li>
+  <li>Running time is $O(n \log n)$ because each $\mathrm{insert}$ and $\mathrm{delete_max}$ takes $O(\log n)$</li>
+  <li>But often include two improvements to this sorting algorithm:</li>
+</ul>
+
+<h5 id="in-place-priority-queue-sort">In-place Priority Queue Sort</h5>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Max-heap $Q$ is a prefix of a larger array $A$, remember how many items $</td>
+          <td>Q</td>
+          <td>$ belong to heap</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$</td>
+          <td>Q</td>
+          <td>$ is initially zero, eventually $</td>
+          <td>A</td>
+          <td>$ (after inserts), then zero again (after deletes)</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$\mathrm{insert()}$ absorbs next item in array at index $</td>
+          <td>Q</td>
+          <td>$ into heap</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$\mathrm{delete_max()}$ moves max item to end, then abandons it by decrementing $</td>
+          <td>Q</td>
+          <td>$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>In-place priority queue sort with Array is exactly Selection Sort</li>
+  <li>In-place priority queue sort with Sorted Array is exactly Insertion Sort</li>
+  <li>In-place priority queue sort with binary Max Heap is <strong>Heap Sort</strong></li>
+</ul>
+
+<h5 id="linear-build-heap">Linear Build Heap</h5>
+
+<ul>
+  <li>Inserting $n$ items into heap calls $\mathrm{max_heapify_up}(i)$ for $i$ from $0$ to $n − 1$ (root down):</li>
+</ul>
+
+\[\mathrm{worst\_case swaps} \approx \sum_{i=0}^{n-1} \mathrm{depth}(i) = \sum_{i=0}^{n-1} \lg i = \lg(n!) \ge (n/2)\lg(n/2) = \Omega(n \lg n)\]
+
+<ul>
+  <li><strong>Idea!</strong> Treat full array as a complete binary tree from start, then $\mathrm{max_heapify_down}(i)$ for $i$ from $n − 1$ to $0$ (leaves up):</li>
+</ul>
+
+\[\mathrm{worst\_case swaps} \approx \sum_{i=0}^{n-1} \mathrm{height}(i) = \sum_{i=0}^{n-1} (\lg n-\lg i) = \lg(\frac{n^n}{n!}) = \Theta (\lg \frac{n^n}{\sqrt{n}(n/e)^n}) = O(n)\]
+
+<ul>
+  <li>So can $\mathrm{build}$ heap in $O(n)$ time</li>
+  <li>(Doesn’t speed up $O(n \lg n)$ performance of heap sort)</li>
+</ul>
+
+<h2 id="3-graph-theory">3. Graph Theory</h2>
+
+<h3 id="31-breadth-first-search-bfs">3.1 Breadth-First Search (BFS)</h3>
+
+<p><img src="/robotics.github.io/assets/images/GraphDefinition.png" alt="截屏2026-03-25 11.05.24" /></p>
+
+<h4 id="311-graph-definitions">3.1.1 Graph Definitions</h4>
+
+<ul>
+  <li>Graph $G = (V, E)$ is a set of vertices $V$ and a set of pairs of vertices $E \subseteq V × V$ .</li>
+  <li><strong>Directed</strong> edges are ordered pairs, e.g., $(u,v) \in V$</li>
+  <li><strong>Undirected</strong> edges are unordered pairs, e.g., $\set{u, v}$ for $u, v \in V$ i.e., $(u, v)$ and $(v, u)$</li>
+  <li>In this class, we assume all graphs are <strong>simple</strong>:
+    <ul>
+      <li>edges are <strong>distinct</strong>, e.g., $(u, v)$ only occurs once in $E$ (though $(v, u)$ may appear), and</li>
+      <li>edges are <strong>pairs of distinct vertices</strong>, e.g., $u \ne v$ for all $(u, v) \in E$</li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>Simple implies $</td>
+              <td>E</td>
+              <td>= O(</td>
+              <td>V</td>
+              <td>^2)$, since $</td>
+              <td>E</td>
+              <td>\le C_{</td>
+              <td>V</td>
+              <td>}^2$ for undirected, $\le 2C_{</td>
+              <td>V</td>
+              <td>}^2$ for directed</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="312-neighbor-setsadjacencices">3.1.2 Neighbor Sets/Adjacencices</h4>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>The <strong>outgoing neighbor set</strong> of $u \in V$ is $\mathrm{Adj}^+(u) = \set{v \in V</td>
+          <td>(u, v) \in E}$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>The <strong>incoming neighbor set</strong> of $u \in V$ is $\mathrm{Adj}^-(u) = \set{v \in V</td>
+          <td>(u, v) \in E}$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>The <strong>out-degree</strong> of a vertex $u \in V$ is $\mathrm{deg}^+(u) =</td>
+          <td>\mathrm{Adj}^+(u)</td>
+          <td>$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>The <strong>in-degree</strong> of a vertex $u \in V$ is $\mathrm{deg}^-(u) =</td>
+          <td>\mathrm{Adj}^-(u)</td>
+          <td>$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>For undirected graphs, $\mathrm{Adj}^+(u) = \mathrm{Adj}^-(u)$ and $\mathrm{deg}^+(u) = \mathrm{deg}^-(u)$</li>
+  <li>Dropping superscript defaults to outgoing, i.e., $\mathrm{Adj}(u) = \mathrm{Adj}^+(u)$ and $\mathrm{deg}(u) = \mathrm{deg}^+(u)$</li>
+</ul>
+
+<h4 id="313-graph-representations">3.1.3 Graph Representations</h4>
+
+<ul>
+  <li>To store a graph $G = (V, E)$, we need to store the outgoing edges $\mathrm{Adj}(u)$ for all $u \in V$</li>
+  <li>First, need a Set data structure $\mathrm{Adj}$ to map $u$ to $\mathrm{Adj}(u)$</li>
+  <li>Then for each $u$, need to store $\mathrm{Adj}(u)$ in another data structure called an <strong>adjacency list</strong></li>
+  <li>Common to use direct access array or hash table for $\mathrm{Adj}$, since want lookup fast by vertex</li>
+  <li>Common to use array or linked list for each $\mathrm{Adj}(u)$ since usually only iteration is needed</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>For the common representations, $\mathrm{Adj}$ has size $\Theta(</td>
+          <td>V</td>
+          <td>)$, while each $\mathrm{Adj}(u)$ has size $\Theta(\deg(u))$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Since $u \in V \deg(u) \le 2</td>
+          <td>E</td>
+          <td>$ by handshaking lemma, graph storable in $\Theta(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$ space</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Thus, for algorithms on graphs, linear time will mean $\Theta(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>) $(linear in size of graph)</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h4 id="314-paths">3.1.4 Paths</h4>
+
+<ul>
+  <li>A path is a sequence of vertices $p = (v_1, v_2, \dots , v_k)$ where $(v_i, v_{i+1}) \in E$  for all $1 \le i &lt; k$.</li>
+  <li>A path is <strong>simple</strong> if it does not repeat vertices</li>
+  <li>The length $\mathcal l(p)$ of a path p is the number of edges in the path</li>
+  <li>The distance $\delta(u,v)$ from $u \in V$ to $v \in V$ is the minimum length of any path from $u$ to $v$, i.e., the length of a <strong>shortest path</strong> from $u$ to $v$</li>
+</ul>
+
+<h4 id="315-graph-path-problems">3.1.5 Graph Path Problems</h4>
+
+<ul>
+  <li>There are many problems you might want to solve concerning paths in a graph:
+    <ul>
+      <li>$\mathrm{Single_Pair_Reachability}(G,s,t)$: is there a path in $G$ form $s \in V$ to $t \in V$?</li>
+      <li>$\mathrm{Single_Pair_Shortest_Path}(G,s,t)$: return distance $\delta(s,t)$, and a shortest path in $G=(V,E)$ from $s \in V$ to $t \in V$</li>
+      <li>$\mathrm{Single_Source_Shortest_Paths}(G,s)$: return $\delta(s,v)$ for all $v \in V$, and <strong>a shortest-path tree</strong> containing a shortest path form $s$ to every $v \in V$</li>
+    </ul>
+  </li>
+  <li>Each problem above is at least as hard as every problem above it</li>
+  <li>We won’t show algorithms to solve all of these problems</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Instead, show one algorithm that solves the hardest in $O(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$ time!</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h4 id="316-shortest-paths-tree">3.1.6 Shortest Paths Tree</h4>
+
+<ul>
+  <li>How to return a shortest path from source vertex s for every vertex in graph?</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Many paths could have length $\Omega(</td>
+          <td>V</td>
+          <td>)$, so returning every path could require $\Omega(</td>
+          <td>V</td>
+          <td>^2)$ time</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>Instead, for all $v \in V$ , store its parent $P(v)$: second to last vertex on a shortest path from $s$</li>
+  <li>Let $P(s)$ be null (no second to last vertex on shortest path from $s$ to $s$)</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Set of parents comprise a shortest paths tree with $O(</td>
+          <td>V</td>
+          <td>)$ size!</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h4 id="317-breadth-first-search-bfs">3.1.7 Breadth-First Search (BFS)</h4>
+
+<ul>
+  <li>How to compute $\delta(s, v)$ and $P(v)$ for all $v \in V$ ?</li>
+  <li>Store $\delta(s, v)$ and $P(v)$ in Set data structures mapping vertices $v$ to distance and parent</li>
+  <li>(If no path form $s$ to $v$, do not store $v$ in $P$ and set $\delta(s, v)$ to $\infin$)</li>
+  <li><strong>Idea!</strong> Explore graph nodes in increasing order of distance</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td><strong>Goal</strong>: Compute <strong>level sets</strong> $L_i = \set{v</td>
+          <td>v \in V \ \mathrm{and}\  \delta(s, v) = i}$ (i.e., all vertices at distance $i$)</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>Claim: Every vertex $v \in L_i$ must be adjacent to a vertex $u \in L_{i−1}$ (i.e., $v \in \mathrm{Adj}(u)$)</li>
+  <li>Claim: No vertex that is in $L_j$ for some $j &lt; i$, appears in $L$</li>
+  <li><strong>Invariant</strong>: $\delta(s, v)$ and $P(v)$ have been computed correctly for all $v$ in any $L_j$ for $j &lt; i$
+    <ul>
+      <li>Base case ($i = 1$): $L_0 = \set{s}$, $\delta(s, s) = 0$, $P(s) = \mathrm{None}$</li>
+      <li>Inductive Step: To compute $L_i$
+        <ul>
+          <li>for every vertex $u$ in $L_{i−1}$:
+            <ul>
+              <li>for every vertex $v \in \mathrm{Adj}(u)$ that does not appear in any $L_j$ for $j &lt; i$:
+                <ul>
+                  <li>add $v$ to $L_i$, set $\delta(s, v) = i$, and set $P(v) = u$</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>Repeatedly compute $L_i$ from $L_j$ for $j &lt; i$ for increasing $i$ until $L_i$ is the empty set</li>
+      <li>Set $\delta(s, v) = \infin$ for any $v \in V$ for which $\delta(s, v)$ was not set</li>
+    </ul>
+  </li>
+  <li>Running time analysis:
+    <ul>
+      <li>Algorithm adds each vertex $u$ to $\le 1$ level and spends $O(1)$ time for each $v \in \mathrm{Adj}(u)$</li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>Work upper bounded by $O(1) × \sum_{u\in V}\deg(u) = O(</td>
+              <td>E</td>
+              <td>)$ by handshake lemma</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>Spend $\Theta(</td>
+              <td>V</td>
+              <td>)$ at end to assign $\delta(s, v)$ for vertices $v \in V$ not reachable from $s$</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>So breadth-first search runs in linear time! $O(</td>
+              <td>V</td>
+              <td>+</td>
+              <td>E</td>
+              <td>)$</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="32-depth-first-search-dfs">3.2 Depth-First Search (DFS)</h3>
+
+<ul>
+  <li>
+    <p>Graph Path Problems</p>
+
+    <ul>
+      <li>
+        <p>$\mathrm{Single_Pair_Reachability}(G,s,t)$</p>
+      </li>
+      <li>
+        <p>$\mathrm{Single_Source_Reachability}(G,s)$</p>
+      </li>
+      <li>
+        <p>$\mathrm{Single_Pair_Shortest_Path}(G,s,t)$</p>
+      </li>
+      <li>
+        <p>$\mathrm{Single_Source_Shortest_Paths}(G,s)$ (SSSP)</p>
+      </li>
+    </ul>
+  </li>
+  <li>Searches a graph from a vertex $s$, similar to BFS</li>
+  <li>Solves Single Source Reachability, <strong>not</strong> SSSP. Useful for solving other problems</li>
+  <li>Return (not neccessarily shortest) parent tree of parent pointers back to $s$</li>
+  <li><strong>Idea!</strong> Visit outgoing adjacencies recursively, but never revisit a vertex</li>
+  <li>i.e., follow any path until you get stuck, backtrack until finding an unexplored path to explore</li>
+  <li>$P(s)=\mathrm{None}$, then run $\mathrm{visit(s)}$, where</li>
+  <li>$\mathrm{visit(s)}$:
+    <ul>
+      <li>for every $v \in \mathrm{Adj(u)}$ that does not appear in $P$:
+        <ul>
+          <li>set $P(v)=u$ and recursively call $\mathrm{visit(v)}$</li>
+        </ul>
+      </li>
+      <li>(DFS finishes visiting vertex $u$, for use later!)</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="321-corrextness">3.2.1 Corrextness</h4>
+
+<ul>
+  <li>Claim: DFS visits $v$ and correctly sets $P(v)$ for every vertex $v$ reachable form $s$</li>
+  <li>Proof: induct on $k$, for claim on only vertices within distance $k$ from $s$
+    <ul>
+      <li>Base case ($k = 0$): $P(s)$ is set correctly for $s$ and $s$ is visited</li>
+      <li>Inductive step: Consider vertex $v$ with $\delta(s,v)=k’+1$</li>
+      <li>Consider vertex $u$, the second to last vertex on some shortest path from $s$ to $v$</li>
+      <li>By induction, since $\delta(s,u) = k’$ , DFS visits $u$ and sets $P(u)$ correctly</li>
+      <li>While visiting $u$, DFS considers $v \in \mathrm{Adj(u)}$</li>
+      <li>Either $v$ is in $P$, so has already been visited, or $v$ will be visited while visiting $u$</li>
+      <li>In either case, $v$ will be visited by DFS and will be added correctly to $P$</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="322-running-time">3.2.2 Running Time</h4>
+
+<ul>
+  <li>Algorithm visits each vertex $u$ at most once and spends $O(1)$ time for each $v \in \mathrm{Adj}(u)$</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Work upper bounded by $O(1) \times \sum_{u \in V}deg(u) = O(</td>
+          <td>E</td>
+          <td>)$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Unlike BFS, not returning a distance for each vertex, so DFS runs in $O(</td>
+          <td>E</td>
+          <td>)$ time</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h4 id="323-full-bfs-and-full-dfs">3.2.3 Full-BFS and Full-DFS</h4>
+
+<ul>
+  <li>Suppose want to explore entire graph, not just vertices reachable from one vertex</li>
+  <li><strong>Idea!</strong> Repeat a graph search algorithm $A$ on any unvisited vertex</li>
+  <li>Repeat the following until all vertices have been visited:
+    <ul>
+      <li>Choose an arbitrary unvisited vertex $s$, use $A$ to explore all vertices reachable from $s$</li>
+    </ul>
+  </li>
+  <li>We call this algorithm <strong>Full-A</strong>, specifically Full-BFS or Full-DFS if $A$ is BFS or DFS</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Visits every vertex once, so both Full-BFS and Full-DFS run in $O(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$ time</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h4 id="324-graph-connectivity">3.2.4 Graph Connectivity</h4>
+
+<ul>
+  <li>An <strong>undirected</strong> graph is <strong>connected</strong> if there is a path connecting every pair of vertices</li>
+  <li>In a directed graph, vertex $u$ may be reachable from $v$, but $v$ may not be reachable from $u$</li>
+  <li>Connectivity is more complicated for directed graphs (we won’t discuss in this class)</li>
+  <li>$\mathrm{Connectivity}(G)$ is undirected graph $G$ connected?</li>
+  <li>$\mathrm{Connected\ Components}(G)$: given undirected graph $G = (V, E)$, return partition of $V$ into subsets $V_i \subseteq V$ (connected components) where each $V_i$ is connected in $G$ and there are no edges between vertices from different connected components</li>
+  <li>Consider a graph algorithm $A$ that solves Single Source Reachability</li>
+  <li><strong>Claim</strong>: $A$ can be used to solve Connected Components</li>
+  <li><strong>Proof</strong>: Run Full-A. For each run of $A$, put visited vertices in a connected component</li>
+</ul>
+
+<h4 id="325-topological-sort">3.2.5 Topological Sort</h4>
+
+<ul>
+  <li>A <strong>Directed Acyclic Graph</strong> (DAG) is a directed graph that contains no directed cycle</li>
+  <li>A Topological Order of a graph $G = (V, E)$ is an ordering $f$ on the vertices such that: every edge $(u, v) \in E$ satisfies $f(u) &lt; f(v)$</li>
+  <li>A <strong>Finishing Order</strong> is the order in which a Full-DFS <strong>finishes visiting</strong> each vertex in $G$</li>
+  <li><strong>Claim</strong>: If $G = (V, E)$ is a DAG, the reverse of a finishing order is a topological order
+    <ul>
+      <li>Proof: Need to prove, for every edge $(u, v) \in E$ that $u$ is ordered before $v$, i.e., the visit to $v$ finishes before visiting $u$. Two cases:
+        <ul>
+          <li>If $u$ visited before $v$:
+            <ul>
+              <li>Before visit to $u$ finishes, will visit $v$ (via $(u, v)$ or otherwise)</li>
+              <li>Thus the visit to $v$ finishes before visiting $u$</li>
+            </ul>
+          </li>
+          <li>If $v$ visited before $u$:
+            <ul>
+              <li>$u$ can’t be reached from $v$ since graph is acyclic</li>
+              <li>Thus the visit to $v$ finishes before visiting $u$</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="326-cycle-detection">3.2.6 Cycle Detection</h4>
+
+<ul>
+  <li>Full-DFS will find a topological order if a graph $G = (V, E)$ is acyclic</li>
+  <li>If reverse finishing order for Full-DFS is not a topological order, then $G$ must contain a cycle</li>
+  <li>Check if $G$ is acyclic: for each edge $(u, v)$, check if $v$ is before $u$ in reverse finishing order</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Can be done in $O(</td>
+          <td>E</td>
+          <td>)$ time via a hash table or direct access array</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>To return such a cycle, maintain the set of <strong>ancestors</strong> along the path back to $s$ in Full-DFS</li>
+  <li><strong>Claim</strong>: If $G$ contains a cycle, Full-DFS will traverse an edge from $v$ to an ancestor of $v$</li>
+  <li><strong>Proof</strong>: Consider a cycle $(v_0, v_1, \dots , v_k, v_0)$ in $G$
+    <ul>
+      <li>Without loss of generality, let $v_0$ be the first vertex visited by Full-DFS on the cycle</li>
+      <li>For each $v_i$, before visit to $v_i$ finishes, will visit $v_{i+1}$ and finish</li>
+      <li>Will consider edge $(v_i, v_{i+1})$, and if $v_{i+1}$ has not been visited, it will be visited now</li>
+      <li>Thus, before visit to $v_0$ finishes, will visit $v_k$ (for the first time, by $v_0$ assumption)</li>
+      <li>So, before visit to $v_k$ finishes, will consider $(v_k, v_0)$, where $v_0$ is an ancestor of $v_k$</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="33-weighted-shortest-paths">3.3 Weighted Shortest Paths</h3>
+
+<h4 id="331-weighted-graphs">3.3.1 Weighted Graphs</h4>
+
+<ul>
+  <li>A <strong>weighted graph</strong> is a graph $G=(V,E)$ together with a weight function $w:E \rightarrow \mathbb{Z}$</li>
+  <li>Many applications for edge weights in a graph:
+    <ul>
+      <li>distance in road network</li>
+      <li>latency in network connections</li>
+      <li>strength of a relationship in a social network</li>
+    </ul>
+  </li>
+  <li>Two common ways to respresent weights computationally:
+    <ul>
+      <li>Inside graph representation: store edge weight with each vertex in adjacency lists</li>
+      <li>Store separate Set data structure mapping each edge to its weight</li>
+    </ul>
+  </li>
+  <li>We assume a representation that allows querying the weight of an edge in $O(1)$ time</li>
+</ul>
+
+<h4 id="332-weighted-paths">3.3.2 Weighted Paths</h4>
+
+<p><img src="/robotics.github.io/assets/images/Graph1.png" alt="截屏2026-04-01 12.54.11" /></p>
+
+<ul>
+  <li>The <strong>weight</strong> $w(\pi)$ of a path $\pi$ in a weighted graph is the sum of weights of edges in the path</li>
+  <li>The (weighted) shortest path from $s \in V$ to $t \in V$ is path of minimum weight from $s$ to $t$</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$\delta(s,t) = \inf { w(\pi)</td>
+          <td>\mathrm{path}\  \pi \  \mathrm{from} \ s\  \mathrm{to}\  t } $ is the <strong>shortest-path weight</strong> from $s$ to $t$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>(Often use “distance” for shortest-path weight in weighted graphs, not number of edges)</li>
+  <li>As with unweighted graphs:
+    <ul>
+      <li>$\delta(s,t) = \infin$ if no path from $s$ to $t$</li>
+      <li>Subpaths of shortest paths are shortest paths (or else could splice in a shorter path)</li>
+    </ul>
+  </li>
+  <li>Why infimum not minimum? Possible that no finite-length minimum-weight path exists</li>
+  <li>When? Can occur if there is a negative-weight cycle in the graph, Ex: $(b, f, g, c, b)$ in $G_1$</li>
+  <li>A <strong>negative-weight</strong> cycle is a path $\pi$ starting and ending at same vertex with $w(\pi) &lt; 0$</li>
+  <li>$\delta(s,t) = −\infin$ if there is a path from s to t through a vertex on a negative-weight cycle</li>
+  <li>If this occurs, don’t want a shortest path, but may want the negative-weight cycle</li>
+</ul>
+
+<h4 id="333-weighted-shortest-paths-algorithms">3.3.3 Weighted Shortest Paths Algorithms</h4>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Already know one algorithm: Breadth-First Search! Runs in $O(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$ time when,</td>
+        </tr>
+      </tbody>
+    </table>
+    <ul>
+      <li>graph has positive weights, and all weights are the same</li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>graph has positive weights, and sum of all weights at most $O(</td>
+              <td>V</td>
+              <td>+</td>
+              <td>E</td>
+              <td>)$</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>For general weighted graphs, we don’t know how to solve SSSP in $O(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$ time</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>But if your graph is a <strong>Directed Acyclic Graph</strong> you can!</li>
+</ul>
+
+<h4 id="334-shortest-paths-tree">3.3.4 Shortest-Paths Tree</h4>
+
+<ul>
+  <li>For BFS, we kept track of parent pointers during search. Alternatively, compute them after!</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>If know $\delta(s, v)$ for all vertices $v \in V$, can construct shortest-path tree in $O(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$ time</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>For weighted shortest paths from $s$, only need parent pointers for vertices $v$ with finite $\delta(s, v)$</li>
+  <li>Initialize empty $P$ and set $P(s) = \mathrm{None}$</li>
+  <li>For each vertex $u \in V$ where $\delta(s, v)$ is finite:
+    <ul>
+      <li>For each outgoing neighbor $v \in \mathrm{Adj}^+(u)$:
+        <ul>
+          <li>If $P(v)$ not assigned and $\delta(s, v) = \delta(s, u) + w(u, v)$:</li>
+          <li>There exists a shortest path through edge $(u, v)$, so set $P(v) = u$</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Parent pointers may traverse cycles of zero weight. Mark each vertex in such a cycle</li>
+  <li>For each unmarked vertex $u \in V$ (including vertices later unmarked):
+    <ul>
+      <li>For each $v \in \mathrm{Adj}^+(u)$ where v is marked and $\delta(s, v) = \delta(s, u) + w(u, v)$:
+        <ul>
+          <li>Unmark vertices in cycle containing $v$ by traversing parent pointers from $v$</li>
+          <li>Set $P(v) = u$, breaking the cycle</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="335-dag-relaxation">3.3.5 DAG Relaxation</h4>
+
+<ul>
+  <li><strong>Idea!</strong> Maintain a distance estimate $d(s, v)$ (initially $\infin$) for each vertex $v \in V$ , that always upper bounds true distance $\delta(s, v)$, then gradually lowers until $d(s, v) = \delta(s, v)$</li>
+  <li>When do we lower? When an edge violates the triangle inequality!</li>
+  <li><strong>Triangle Inequality</strong>: the shortest-path weight from $u$ to $v$ cannot be greater than the shortest path from $u$ to $v$ through another vertex $x$, i.e., $\delta(u, v) \le \delta(u, x) + \delta(x, v)$ for all $u, v, x \in V$</li>
+  <li>If $d(s, v) &gt; d(s, u) + w(u, v)$ for some edge $(u, v)$, then triangle inequality is violated</li>
+  <li>Fix by lowering $d(s, v)$ to $d(s, u) + w(u, v)$, i.e., relax $(u, v)$ to satisfy violated constraint</li>
+  <li><strong>Claim</strong>: Relaxation is safe: maintains that each $d(s, v)$ is weight of a path to v (or $\infin$) $\forall v \in V$</li>
+  <li><strong>Proof</strong>: Assume $d(s, v_0)$ is weight of a path (or $\infin$) for all $v_0 \in V$. Relaxing some edge $(u, v)$ sets $d(s, v)$ to $d(s, u) + w(u, v)$, which is the weight of a path from $s$ to $v$ through $u$</li>
+  <li>Set $d(s, v) = \infin$ for all $v \in V$ , then set $d(s, s) = 0$</li>
+  <li>Process each vertex $u$ in a topological sort order of $G$:
+    <ul>
+      <li>For each outgoing neighbor $v \in \mathrm{Adj}^+(u)$:
+        <ul>
+          <li>If $d(s, v) &gt; d(s, u) + w(u, v)$:
+            <ul>
+              <li>relax edge $(u, v)$, i.e., set $d(s, v) = d(s, u) + w(u, v)$</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="336-correctness">3.3.6 Correctness</h4>
+
+<ul>
+  <li><strong>Claim</strong>: At end of DAG Relaxation: $d(s, v) = \delta(s, v)$ for all $v \in V$</li>
+  <li><strong>Proof</strong>: Induct on $k: d(s, v) = \delta(s, v)$ for all $v$ in first $k$ vertices in topological order
+    <ul>
+      <li>Base case: Vertex $s$ and every vertex before $s$ in topological order satisfies claim at start</li>
+      <li>Inductive step: Assume claim holds for first $k’$ vertices, let v be the $(k’ + 1)^{\mathrm{th}} $</li>
+      <li>Consider a shortest path from $s$ to $v$, and let $u$ be the vertex preceding $v$ on path</li>
+      <li>$u$ occurs before $v$ in topological order, so $d(s, u) = \delta(s, u)$ by induction</li>
+      <li>When processing $u$, $d(s, v)$ is set to be no larger ($\le$) than $\delta(s, u) + w(u, v) = \delta(s, v)$</li>
+      <li>But $d(s, v) \ge \delta(s, v)$, since relaxation is safe, so $d(s, v) = \delta(s, v)$</li>
+    </ul>
+  </li>
+  <li>Alternatively:
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>For any vertex $v$, DAG relaxation sets $d(s, v) = \min{d(s, u)+w(u, v)</td>
+              <td>u \in \mathrm{Adj}^−(v)}$</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>Shortest path to $v$ must pass through some incoming neighbor $u$ of $v$</li>
+      <li>So if $d(s, u) = \delta(s, u)$ for all $u \in \mathrm{Adj}^−(v)$ by induction, then $d(s, v) = \delta(s, v)$</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="337-running-time">3.3.7 Running Time</h4>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Initialization takes $O(</td>
+          <td>V</td>
+          <td>)$ time, and Topological Sort takes $O(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$ time</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Additional work upper bounded by $O(1) \times \sum_{u \in V} \mathrm{deg}^+(u) = O(</td>
+          <td>E</td>
+          <td>)$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Total running time is linear, $O(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h3 id="34-bellman-ford">3.4 Bellman-Ford</h3>
+
+<h4 id="341-simple-shortest-paths">3.4.1 Simple Shortest Paths</h4>
+
+<ul>
+  <li>If graph contains cycles and negative weights, might contain negative-weight cycles</li>
+  <li>If graph does not contain negative-weight cycles, shortest paths are simple!</li>
+  <li><strong>Claim 1</strong>: If $\delta(s, v)$ is finite, there exists a shortest path to $v$ that is simple</li>
+  <li><strong>Proof</strong>: By contradiction:
+    <ul>
+      <li>Suppose no simple shortest path; let $\pi$ be a shortest path with fewest vertices</li>
+      <li>$\pi$ not simple, so exists cycle $C$ in $\pi$; $C$ has non-negative weight (or else $\delta(s, v) = −\infin$)</li>
+      <li>Removing $C$ from $\pi$ forms path $\pi_0$ with fewer vertices and weight $w(\pi_0 ) \le w(\pi)$</li>
+    </ul>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Since simple paths cannot repeat vertices, finite shortest paths contain at most $</td>
+          <td>V</td>
+          <td>− 1$ edges</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h4 id="342-negative-cycle-witness">3.4.2 Negative Cycle Witness</h4>
+
+<ul>
+  <li><strong>k-Edge Distance</strong> $\delta_k(s, v)$: the minimum weight of any path from $s$ to $v$ using $\le k$ edges</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td><strong>Idea!</strong> Compute $\delta_{</td>
+          <td>V</td>
+          <td>−1}(s, v)$ and $\delta_{</td>
+          <td>V</td>
+          <td>}(s, v)$ for all $v \in V$</td>
+        </tr>
+      </tbody>
+    </table>
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>If $\delta(s, v) \ne −\infin$, $\delta(s, v) = \delta_{</td>
+              <td>V</td>
+              <td>−1}(s, v)$, since a shortest path is simple (or nonexistent)</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>If $\delta_{</td>
+              <td>V</td>
+              <td>}(s, v) &lt; \delta_{</td>
+              <td>V</td>
+              <td>−1}(s, v)$</td>
+            </tr>
+          </tbody>
+        </table>
+        <ul>
+          <li>
+            <table>
+              <tbody>
+                <tr>
+                  <td>there exists a shorter non-simple path to $v$, so $\delta_{</td>
+                  <td>V</td>
+                  <td>}(s, v) = −\infin$</td>
+                </tr>
+              </tbody>
+            </table>
+          </li>
+          <li>call $v$ a (negative cycle) witness</li>
+        </ul>
+      </li>
+      <li>However, there may be vertices with $−\infin$ shortest-path weight that are not witnesses</li>
+    </ul>
+  </li>
+  <li><strong>Claim 2</strong>: If $\delta(s, v) = −\infin$, then $v$ is reachable from a witness</li>
+  <li><strong>Proof</strong>: Suffices to prove: every negative-weight cycle reachable from $s$ contains a witness
+    <ul>
+      <li>Consider a negative-weight cycle $C$ reachable from $s$</li>
+      <li>For $v \in C$, let $v’ \in C$ denote $v$’s predecessor in $C$, where $\sum_{v \in C} w(v’, v) &lt; 0$</li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>Then $\delta_{</td>
+              <td>V</td>
+              <td>}(s, v) \le \delta_{</td>
+              <td>V</td>
+              <td>−1}(s, v’)+w(v’,v)$ (RHS weight of some path on $\le</td>
+              <td>V</td>
+              <td>$ vertices)</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>So $\sum_{v \in C}\delta_{</td>
+              <td>V</td>
+              <td>}(s, v) \le \sum_{v \in C}\delta_{</td>
+              <td>V</td>
+              <td>−1}(s, v0) + \sum_{v \in C}w(v’, v) &lt; \sum_{v \in C}\delta_{</td>
+              <td>V</td>
+              <td>−1}(s, v)$</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>If $C$ contains no witness, $\delta_{</td>
+              <td>V</td>
+              <td>}(s, v) \ge \delta_{</td>
+              <td>V</td>
+              <td>−1}(s, v)$ for all $v \in C$, a contradiction</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="343-bellman-ford">3.4.3 Bellman-Ford</h4>
+
+<ul>
+  <li><strong>Idea!</strong> Use <strong>graph duplication</strong>: make multiple copies (or levels) of the graph</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$</td>
+          <td>V</td>
+          <td>+1$ level: vertex $v_k$ in level $k$ represents reaching vertex $v$ from $s$ using $\le k$ edges</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>If edges only increase in level, resulting graph is a DAG!</li>
+  <li>Construct new DAG $G’ = (V’, E’)$ from $G = (V, E)$:
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>$G’$ has $</td>
+              <td>V</td>
+              <td>(</td>
+              <td>V</td>
+              <td>+ 1)$ vertices $v_k$ for all $v \in V$ and $k \in {0, \dots,</td>
+              <td>V</td>
+              <td>} $</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>$G’$ has $</td>
+              <td>V</td>
+              <td>(</td>
+              <td>V</td>
+              <td>+</td>
+              <td>E</td>
+              <td>)$ edges:</td>
+            </tr>
+          </tbody>
+        </table>
+        <ul>
+          <li>
+            <table>
+              <tbody>
+                <tr>
+                  <td>$</td>
+                  <td>V</td>
+                  <td>$ edges $(v_{k−1}, v_k)$ for $k \in {1, \dots ,</td>
+                  <td>V</td>
+                  <td>}$ of weight zero for each $v \in V$</td>
+                </tr>
+              </tbody>
+            </table>
+          </li>
+          <li>
+            <table>
+              <tbody>
+                <tr>
+                  <td>$</td>
+                  <td>V</td>
+                  <td>$ edges $(u_{k−1}, v_k)$ for $k \in {1, \dots,</td>
+                  <td>V</td>
+                  <td>}$ of weight $w(u, v)$ for each $(u, v) \in E$</td>
+                </tr>
+              </tbody>
+            </table>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Run DAG Relaxation on $G’$ from $s’$ to compute $\delta(s_0,v_k)$ for all $v_k \in V$</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>For each vertex: set $d(s, v) = \delta(s_0,v_{</td>
+          <td>V</td>
+          <td>−1})$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>For each witness $u \in V$ where $\delta(s_0, u_{</td>
+          <td>V</td>
+          <td>}) &lt; \delta(s_0, u_{</td>
+          <td>V</td>
+          <td>−1})$:</td>
+        </tr>
+      </tbody>
+    </table>
+    <ul>
+      <li>For each vertex $v$ reachable from $u$ in $G$:
+        <ul>
+          <li>set $d(s, v) = −\infin$</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="/robotics.github.io/assets/images/Graph2.png" alt="截屏2026-04-02 11.31.16" /></p>
+
+<h4 id="344-correctness">3.4.4 Correctness</h4>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td><strong>Claim 3</strong>: $\delta(s_0, v_k) = \delta_k(s,v)$ for all $v \in V$ and $k \in {0, \dots ,</td>
+          <td>V</td>
+          <td>}$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p><strong>Proof</strong>: By induction on $k$:</p>
+
+    <ul>
+      <li>
+        <p>Base case: true for all $v \in V$ when $k = 0$ (only $v_0$ reachable from $s_0$ is $v = s$)</p>
+      </li>
+      <li>
+        <p>Inductive Step: Assume true for all $k &lt; k’$ , prove for $k = k’$
+\(\begin{aligned}
+\delta(s_0, v_{k'}) &amp;= \min \{\delta(s_0, u_{k'−1}) + w(u_{k'−1}, v_{k_0}) | u_{k'−1} \in \mathrm{Adj}^−(v_{k'}) \} \\
+&amp;= \min \{ \{ \delta(s_0, u_{k'−1}) + w(u, v) | u \in \mathrm{Adj}^−(v)\} \cup \{ \delta(s_0, v_{k'−1}) \}\} \\ 
+&amp;= \min \{ \{\delta_{k'−1}(s, u) + w(u, v) | u \in \mathrm{Adj}^−(v) \} ∪ \{ \delta_{k'−1}(s, v) \} \} (\mathrm{by \ induction}) \\
+&amp;= \delta_{k'}(s, v)
+\end{aligned}\)</p>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Claim 4</strong>: At the end of Bellman-Ford $d(s, v) = \delta(s, v)$</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td><strong>Proof</strong>: Correctly computes $\delta_{</td>
+          <td>V</td>
+          <td>−1}(s, v)$ and $\delta_{</td>
+          <td>V</td>
+          <td>}(s, v)$ for all $v \in V$ by Claim 3</td>
+        </tr>
+      </tbody>
+    </table>
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>If $\delta(s, v) \ne −\infin$, correctly sets $d(s, v) = \delta_{</td>
+              <td>V</td>
+              <td>−1}(s, v) = \delta(s, v)$</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>Then sets $d(s, v) = −\infin$ for any $v$ reachable from a witness; correct by Claim 2</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="345-running-time">3.4.5 Running Time</h4>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$G’$ has size $O(</td>
+          <td>V</td>
+          <td>(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>))$ and can be constructed in as much time</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>Running DAG Relaxation on $G’$ takes linear time in the size of $G’$</li>
+  <li>Does $O(1)$ work for each vertex reachable from a witness</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Finding reachability of a witness takes $O(</td>
+          <td>E</td>
+          <td>)$ time, with at most $O(</td>
+          <td>V</td>
+          <td>)$witnesses: $O(</td>
+          <td>V</td>
+          <td> </td>
+          <td>E</td>
+          <td>) $</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>(Alternatively, connect <strong>super node</strong> $x$ to witnesses via $0$-weight edges, linear search from $x$)</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Pruning $G$ at start to only subgraph reachable from $s$ yields $O(</td>
+          <td>V</td>
+          <td> </td>
+          <td>E</td>
+          <td>) $-time algorithm</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h3 id="35-dijkstras-algorithm">3.5 Dijkstra’s Algorithm</h3>
+
+<h4 id="351-non-negative-edge-weights">3.5.1 Non-negative Edge Weights</h4>
+
+<ul>
+  <li><strong>Idea!</strong> Generalize BFS approach to weighted graphs:
+    <ul>
+      <li>Grow a sphere centered at source $s$</li>
+      <li>Repeatedly explore closer vertices before further ones</li>
+      <li>But how to explore closer vertices if you don’t know distances beforehand?</li>
+    </ul>
+  </li>
+  <li><strong>Observation 1</strong>: If weights non-negative, monotonic distance increase along shortest paths
+    <ul>
+      <li>Let $V_x \subset V$ be the subset of vertices reachable within distance $\le x$ from $s$</li>
+      <li>If $v \in V_x$, then any shortest path from $s$ to $v$ only contains vertices from $V_x$</li>
+      <li>Perhaps grow $V_x$ one vertex at a time! (but growing for every $x$ is slow if weights large)</li>
+    </ul>
+  </li>
+  <li><strong>Observation 2</strong>: Can solve SSSP fast if given order of vertices in increasing distance from s
+    <ul>
+      <li>Remove edges  that go against this order (since cannot participate in shortest paths)</li>
+      <li>May still have cycles if zero-weight edges: repeatedly collapse into single vertices</li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>Compute $\delta(s, v)$ for each $v \in V$ using DAG relaxation in $O(</td>
+              <td>V</td>
+              <td>+</td>
+              <td>E</td>
+              <td>)$ time</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="352-dijkstras-algorithm">3.5.2 Dijkstra’s Algorithm</h4>
+
+<ul>
+  <li><strong>Idea!</strong> Relax edges from each vertex in increasing order of distance from source $s$</li>
+  <li><strong>Idea!</strong> Efficiently find next vertex in the order using a data structure</li>
+  <li><strong>Changeable Priority Queue</strong> $Q$ on items with keys and unique IDs, supporting operations:
+    <ul>
+      <li>$\mathrm{Q.build(X)}$: initialize $Q$ with items in iterator $X$</li>
+      <li>$\mathrm{Q.delete_min()}$: remove an item with minimum key Q</li>
+      <li>$\mathrm{Q.decrease_key(id, k)}$: find stored item with ID id and change key to $k$</li>
+    </ul>
+  </li>
+  <li>Implement by <strong>cross-linking</strong> a Priority Queue $Q’$ and a Dictionary $D$ mapping IDs into $Q’$</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Assume vertex IDs are integers from $0$ to $</td>
+          <td>V</td>
+          <td>− 1$ so can use a direct access array for $D$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>For brevity, say item $x$ is the tuple $(\mathrm{x.id}, \mathrm{x.key})$</li>
+  <li>Set $d(s, v) = \infin$ for all $v \in V$ , then set $d(s, s) = 0$</li>
+  <li>Build changeable priority queue $Q$ with an item $(v, d(s, v))$ for each vertex $v \in V$</li>
+  <li>While $Q$ not empty, delete an item $(u, d(s, u))$ from $Q$ that has minimum $d(s, u)$
+    <ul>
+      <li>For vertex $v$ in outgoing adjacencies $\mathrm{Adj}^+(u)$:
+        <ul>
+          <li>If $d(s, v) &gt; d(s, u) + w(u, v)$:
+            <ul>
+              <li>Relax edge $(u, v)$, i.e., set $d(s, v) = d(s, u) + w(u, v)$</li>
+              <li>Decrease the key of $v$ in $Q$ to new estimate $d(s, v)$</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="/robotics.github.io/assets/images/Graph3.png" alt="截屏2026-04-02 14.37.59" /></p>
+
+<h4 id="353-correctness">3.5.3 Correctness</h4>
+
+<ul>
+  <li>
+    <p><strong>Claim</strong>: At end of Dijkstra’s algorithm, $d(s,v)=\delta(s,v)$ for all $v \in V$</p>
+  </li>
+  <li>
+    <p><strong>Proof</strong>:</p>
+
+    <ul>
+      <li>
+        <p>If relaxation sets $d(s, v)$ to $\delta(s, v)$, then $d(s, v) = \delta(s, v)$ at the end of the algorithm</p>
+
+        <ul>
+          <li>Relaxation can only decrease estimates $d(s, v)$</li>
+          <li>Relaxation is safe, i.e., maintains that each $d(s, v)$ is weight of a path to $v$ (or $\infin$)</li>
+        </ul>
+      </li>
+      <li>
+        <p>Suffices to show $d(s, v) = \delta(s, v)$ when vertex $v$ is removed from $Q$</p>
+
+        <ul>
+          <li>
+            <p>Proof by induction on first $k$ vertices removed from $Q$</p>
+          </li>
+          <li>
+            <p>Base Case $(k = 1)$: $s$ is first vertex removed from $Q$, and $d(s, s) = 0 = \delta(s, s)$</p>
+          </li>
+          <li>
+            <p>Inductive Step: Assume true for $k &lt; k’$ , consider $k’$th vertex $v’$ removed from $Q$</p>
+          </li>
+          <li>
+            <p>Consider some shortest path $\pi$ from $s$ to $v’$ , with $w(\pi) = \delta(s, v’)$</p>
+          </li>
+          <li>
+            <p>Let $(x, y)$ be the first edge in $\pi$ where $y$ is not among first $k’ − 1$ (perhaps $y = v’$ )</p>
+          </li>
+          <li>
+            <p>When $x$ was removed from $Q$, $d(s, x) = \delta(s, x)$ by induction, so: 
+$$
+\begin{aligned}
+d(s, y) &amp;\le \delta(s, x) + w(x, y) &amp;\mathrm{relaxed\ edge\ (x, y) \ when\ removed x} <br />
+&amp;= \delta(s, y)  &amp;\mathrm{subpaths\ of\ shortest\ paths\ are\ shortest\ paths} <br />
+&amp;\le \delta(s,v’) &amp;\mathrm{non-negative\ edge\ weights} <br />
+&amp;\le d(s, v’) &amp;\mathrm{relaxation\ is\ safe} <br />
+&amp;\le d(s, y) &amp;\mathrm{v’\ is\ vertex\ with\ minimum\ d(s, v’)\ in\ Q}</p>
+
+            <p>\end{aligned}
+$$</p>
+          </li>
+          <li>
+            <p>So $d(s, v’) = \delta(s, v’)$, as desired</p>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="354-running-time">3.5.4 Running Time</h4>
+
+<ul>
+  <li>Count operations on changeable priority queue $Q$, assuming it contains $n$ items:</li>
+</ul>
+
+<p><img src="/robotics.github.io/assets/images/Graph4.png" alt="截屏2026-04-02 15.08.12" /></p>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Total running time is $O(B_{</td>
+          <td>V</td>
+          <td>} +</td>
+          <td>V</td>
+          <td>· M_{</td>
+          <td>V</td>
+          <td>} +</td>
+          <td>E</td>
+          <td>· D_{</td>
+          <td>V</td>
+          <td>})$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Assume pruned graph to search only vertices reachable from the source, so $</td>
+          <td>V</td>
+          <td>= O(</td>
+          <td>E</td>
+          <td>)$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<p><img src="/robotics.github.io/assets/images/Graph5.png" alt="截屏2026-04-02 15.10.27" /></p>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>If graph is dense, i.e., $</td>
+          <td>E</td>
+          <td>= \Theta(</td>
+          <td>V</td>
+          <td>^2)$, using an Array for $Q’$ yields $O(</td>
+          <td>V</td>
+          <td>^2)$ time</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>If graph is sparse, i.e., $</td>
+          <td>E</td>
+          <td>= \Theta(</td>
+          <td>V</td>
+          <td>)$, using a Binary Heap for $Q’$ yields $O(</td>
+          <td>V</td>
+          <td>\log</td>
+          <td>V</td>
+          <td>)$ time</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>A Fibonacci Heap is theoretically good in all cases, but is not used much in practice</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>You should assume Dijkstra runs in $O(</td>
+          <td>E</td>
+          <td>+</td>
+          <td>V</td>
+          <td>\log</td>
+          <td>V</td>
+          <td>)$ time when using in theory problems</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h3 id="36-summary-weighted-single-source-shortest-paths">3.6 Summary: Weighted Single-Source Shortest Paths</h3>
+
+<p><img src="/robotics.github.io/assets/images/Graph6.png" alt="截屏2026-04-02 15.22.27" /></p>
+
+<h3 id="37-johnsons-algorithm">3.7 Johnson’s Algorithm</h3>
+
+<h4 id="371-all-pairs-shortest-paths-apsp">3.7.1 All-Pairs Shortest Paths (APSP)</h4>
+
+<ul>
+  <li>Input: directed graph $G = (V, E)$ with weights $w : E \rightarrow \mathbb Z$</li>
+  <li>Output: $\delta (u, v)$ for all $u, v \in V$ , or abort if $G$ contains negative-weight cycle</li>
+  <li>Useful when understanding whole network, e.g., transportation, circuit layout, supply chains…</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Just doing a SSSP algorithm $</td>
+          <td>V</td>
+          <td>$ times is actually pretty good, since output has size $O(</td>
+          <td>V</td>
+          <td>^2)$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$</td>
+          <td>V</td>
+          <td>O(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$ with BFS if weights positive and bounded by $O(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$</td>
+          <td>V</td>
+          <td>O(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$ with DAG Relaxation if acyclic</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$</td>
+          <td>V</td>
+          <td>O(</td>
+          <td>V</td>
+          <td>\log</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$ with Dijkstra if weights non-negative or graph undirected</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$</td>
+          <td>V</td>
+          <td>O(</td>
+          <td>V</td>
+          <td> </td>
+          <td>E</td>
+          <td>) $with Bellman-Ford (general)</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>Solve APSP in any weighted graph in $</td>
+          <td>V</td>
+          <td>O(</td>
+          <td>V</td>
+          <td>\log</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$ time</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h4 id="372-approach">3.7.2 Approach</h4>
+
+<ul>
+  <li><strong>Idea</strong>: Make all edge weights non-negative while <strong>preserving shortest paths</strong>!</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>If non-negative, then just run Dijkstra $</td>
+          <td>V</td>
+          <td>$ times to solve APSP</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td><strong>Claim</strong>: Can compute distances in $G$ from distances in $G’$ in $O(</td>
+          <td>V</td>
+          <td>(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>))$ time</td>
+        </tr>
+      </tbody>
+    </table>
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>Compute shortest-path tree from distances, for each $s \in V’$ in $O(</td>
+              <td>V</td>
+              <td>+</td>
+              <td>E</td>
+              <td>)$ time</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>Also shortest-paths tree in $G$, so traverse tree with DFS while also computing distances</li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>Takes $O(</td>
+              <td>V</td>
+              <td>(</td>
+              <td>V</td>
+              <td>+</td>
+              <td>E</td>
+              <td>))$ time (which is less time than $</td>
+              <td>V</td>
+              <td>$ times Dijkstra)</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+  <li>But how to make $G’$ with non-negative edge weights? Is this even possible??</li>
+  <li><strong>Claim</strong>: Not possible if $G$ contains a negative-weight cycle</li>
+  <li><strong>Proof</strong>: Shortest paths are simple if no negative weights, but not if negative-weight cycle</li>
+</ul>
+
+<h4 id="373-making-weights-non-negative-1">3.7.3 Making Weights Non-negative 1</h4>
+
+<ul>
+  <li><strong>Idea!</strong> Add negative of smallest weight in G to every edge! All weights non-negative!</li>
+  <li><strong>FAIL</strong>: Does not preserve shortest paths! Biases toward paths traversing fewer edges</li>
+  <li><strong>Idea!</strong> Given vertex $v$, add $h$ to all outgoing edges and subtract $h$ from all incoming edges</li>
+  <li><strong>Claim</strong>: Shortest paths are preserved under the above reweighting</li>
+  <li><strong>Proof</strong>:
+    <ul>
+      <li>Weight of every path starting at $v$ changes by $h$</li>
+      <li>Weight of every path ending at $v$ changes by $−h$</li>
+      <li>Weight of a path passing through $v$ <strong>does not change</strong> (locally)</li>
+    </ul>
+  </li>
+  <li>This is a very general and useful trick to transform a graph while preserving shortest paths!</li>
+  <li>Even works with multiple vertices!</li>
+  <li>Define a <strong>potential function</strong> $h : V \rightarrow \mathbb Z$ mapping each vertex $v \in V$ to a potential $h(v)$</li>
+  <li>Make graph $G’$ : same as $G$ but edge $(u, v) \in E$ has weight $w’(u, v) = w(u, v)+h(u)−h(v)$</li>
+  <li><strong>Claim</strong>: Shortest paths in $G$ are also shortest paths in $G’$</li>
+  <li><strong>Proof</strong>:
+    <ul>
+      <li>Weight of path $\pi = (v_0, \dots , v_k)$ in $G$ is $w(\pi) = \sum_{i=1}^k w(v_{i−1}, v_i)$</li>
+      <li>Weight of $\pi$ in $G’$ is: $\sum_{i=1}^k w(v_{i−1}, v_i) + h(v_i−1) − h(v_i) = w(\pi) + h(v_0) − h(v_k)$</li>
+      <li>(Sum of $h$’s telescope, since there is a positive and negative $h(v_i)$ for each interior $i$)</li>
+      <li>Every path from $v_0$ to $v_k$ changes by the same amount</li>
+      <li>So any shortest path will still be shortest</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="374-making-weights-non-negative-2">3.7.4 Making Weights Non-negative 2</h4>
+
+<ul>
+  <li>Can we find a potential function such that $G’$ has no negative edge weights?</li>
+  <li>i.e., is there an h such that $w(u, v) + h(u) − h(v) \ge 0$ for every $(u, v) \in E$?</li>
+  <li>Re-arrange this condition to $h(v) \le h(u) + w(u, v)$, looks like <strong>triangle inequality</strong>!</li>
+  <li><strong>Idea!</strong> Condition would be satisfied if $h(v) = \delta(s, v)$ and $\delta(s, v)$ is finite for some $s$</li>
+  <li>But graph may be disconnected, so may not exist any such vertex $s$…</li>
+  <li><strong>Idea!</strong> Add a new vertex $s$ with a directed 0-weight edge to every $v \in V$ !</li>
+  <li>$\delta(s, v) \le 0$ for all $v \in V$ , since path exists a path of weight 0</li>
+  <li><strong>Claim</strong>: If $\delta(s, v) = −\infin$ for any $v \in V$, then the original graph has a negative-weight cycle</li>
+  <li><strong>Proof</strong>:
+    <ul>
+      <li>Adding s does not introduce new cycles (s has no incoming edges)</li>
+      <li>So if reweighted graph has a negative-weight cycle, so does the original graph</li>
+    </ul>
+  </li>
+  <li>Alternatively, if $\delta(s, v)$ is finite for all $v \in V$ :
+    <ul>
+      <li>$w’(u, v) = w(u, v) + h(u) − h(v) \ge 0$ for every $(u, v) \in E$ by triangle inequality!</li>
+      <li>New weights in $G’$ are non-negative while preserving shortest paths!</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="375-johnsons-algorithm">3.7.5 Johnson’s Algorithm</h4>
+
+<ul>
+  <li>Construct $G_x$ from $G$ by adding vertex $x$ connected to each vertex $v \in V$ with 0-weight edge</li>
+  <li>Compute $\delta_x(x, v)$ for every $v \in V$ (using Bellman-Ford)</li>
+  <li>If $\delta_x(x, v) = −\infin$ for any $v \in V$ :
+    <ul>
+      <li>Abort (since there is a negative-weight cycle in $G$)</li>
+    </ul>
+  </li>
+  <li>Else:
+    <ul>
+      <li>Reweight each edge $w’(u, v) = w(u, v) + \delta_x(x, u) − \delta_x(x, v)$ to form graph $G’$</li>
+      <li>For each $u \in V$ :
+        <ul>
+          <li>Compute shortest-path distances $\delta’(u, v)$ to all $v$ in $G’$ (using Dijkstra)</li>
+          <li>Compute $\delta(u, v) = \delta’ (u, v) − \delta_x(x, u) + \delta_x(x, v)$ for all $v \in V$</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="376-correctness">3.7.6 Correctness</h4>
+
+<ul>
+  <li>Already proved that transformation from $G$ to $G’$ preserves shortest paths</li>
+  <li>Rest reduces to correctness of Bellman-Ford and Dijkstra</li>
+  <li>Reducing from <strong>Signed APSP</strong> to <strong>Non-negative APSP</strong></li>
+  <li>Reductions save time! No induction today!</li>
+</ul>
+
+<h4 id="377-running-time">3.7.7 Running Time</h4>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$O(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$ time to construct $G_x$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$O(</td>
+          <td>V</td>
+          <td> </td>
+          <td>E</td>
+          <td>)$ time for Bellman-Ford</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$O(</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>)$ time to construct $G’$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$O(</td>
+          <td>V</td>
+          <td>(</td>
+          <td>V</td>
+          <td>\log</td>
+          <td>V</td>
+          <td>+</td>
+          <td>E</td>
+          <td>))$ time for $</td>
+          <td>V</td>
+          <td>$ runs of Dijkstra</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$O(</td>
+          <td>V</td>
+          <td>^2)$ time to compute distances in $G$ from distances in $G’$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$O(</td>
+          <td>V</td>
+          <td>^2 \log</td>
+          <td>V</td>
+          <td>+</td>
+          <td>V</td>
+          <td> </td>
+          <td>E</td>
+          <td>)$ time in total</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h2 id="4-dynamic-programming">4. Dynamic Programming</h2>
+
+<ul>
+  <li>Hard part is thinking inductively to construct recurrence on subproblems</li>
+  <li>How to solve a problem recursively (SRT BOT)
+    <ul>
+      <li><strong>Subproblem</strong> definition</li>
+      <li><strong>Relate</strong> subproblem solutions recursively</li>
+      <li><strong>Topological</strong> order on subproblems ($\rightarrow$ subproblem DAG)</li>
+      <li><strong>Base</strong> cases of relation</li>
+      <li><strong>Original</strong> problem solution via subproblem(s)</li>
+      <li><strong>Time</strong> analysis</li>
+    </ul>
+  </li>
+</ul>
+
+
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; 2026 MASTERHU. Built by a Robotic Engineer.</p>
+    </footer>
+
+    <script src="/robotics.github.io/assets/js/main.js"></script>
+    <script src="/robotics.github.io/assets/js/robot.js"></script>
+</body>
+</html>

@@ -674,7 +674,8 @@ $$
 \right]
 $$
 
-令$$
+令
+$$
 d_k=D^{\nu^{\pi_{\theta_k}}}_{KL}(\pi_{\theta_k},\pi_{\theta})
 $$
 和$\beta$的更新规则如下：
